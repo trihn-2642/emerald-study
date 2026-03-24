@@ -1,6 +1,6 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -8,7 +8,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-cn: var(--font-cn);
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -49,16 +49,16 @@
 
   /* Emerald theme – rating button colours */
   --color-rating-again: #ef4444;
-  --color-rating-hard:  #f59e0b;
-  --color-rating-good:  #3b82f6;
-  --color-rating-easy:  #10b981;
+  --color-rating-hard: #f59e0b;
+  --color-rating-good: #3b82f6;
+  --color-rating-easy: #10b981;
 
   /* App surface & text colours */
-  --color-surface-page:  #eff4ff; /* bg-surface-page  – page/screen background */
+  --color-surface-page: #eff4ff; /* bg-surface-page  – page/screen background */
   --color-surface-input: #e5eeff; /* bg-surface-input – input / chip background */
-  --color-on-surface:    #0b1c30; /* text-on-surface  – primary text            */
-  --color-on-muted:      #3c4a42; /* text-on-muted    – secondary/muted text     */
-  --color-brand-deep:    #006c49; /* from-brand-deep  – gradient start, deep green */
+  --color-on-surface: #0b1c30; /* text-on-surface  – primary text            */
+  --color-on-muted: #3c4a42; /* text-on-muted    – secondary/muted text     */
+  --color-brand-deep: #006c49; /* from-brand-deep  – gradient start, deep green */
 }
 
 :root {

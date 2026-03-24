@@ -1,5 +1,7 @@
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { cache } from 'react';
 
 export async function createClient() {
   const cookieStore = await cookies();
@@ -26,3 +28,17 @@ export async function createClient() {
     },
   );
 }
+
+/**
+ * Cached per-request getUser — deduplicates across layout + page.
+ * React cache() ensures the network call runs only once per render tree.
+ */
+export const getUser = cache(async () => {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) redirect('/login');
+  return user;
+});

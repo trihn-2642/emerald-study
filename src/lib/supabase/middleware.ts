@@ -1,5 +1,5 @@
-import { createServerClient } from "@supabase/ssr";
-import { NextResponse, type NextRequest } from "next/server";
+import { createServerClient } from '@supabase/ssr';
+import { NextResponse, type NextRequest } from 'next/server';
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -33,23 +33,23 @@ export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   // 1. Nếu vào root "/"
-  if (pathname === "/") {
+  if (pathname === '/') {
     return NextResponse.redirect(
-      new URL(user ? "/dashboard" : "/login", request.url),
+      new URL(user ? '/dashboard' : '/login', request.url),
     );
   }
 
   // 2. Chặn các route bảo vệ
-  const protectedPrefixes = ["/dashboard", "/library", "/study", "/cards"];
+  const protectedPrefixes = ['/dashboard', '/library', '/study', '/cards'];
   const isProtected = protectedPrefixes.some((p) => pathname.startsWith(p));
 
   if (isProtected && !user) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
   // 3. Nếu đã login mà cố vào trang auth (login/register)
-  if (user && (pathname === "/login" || pathname === "/register")) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+  if (user && (pathname === '/login' || pathname === '/register')) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
   return supabaseResponse;

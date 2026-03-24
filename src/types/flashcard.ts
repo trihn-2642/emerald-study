@@ -28,7 +28,7 @@ export interface Flashcard {
   fsrs_data: FsrsData;
   next_review: string; // ISO timestamp UTC
   created_at: string;
-  language: "zh" | "en";
+  language: 'zh' | 'en';
 }
 
 export interface Deck {
@@ -36,7 +36,7 @@ export interface Deck {
   user_id: string;
   name: string;
   description: string;
-  language: "zh" | "en";
+  language: 'zh' | 'en';
   card_count: number;
   due_count: number; // computed from query, not stored in DB
   mastery_percent: number; // computed from query, not stored in DB

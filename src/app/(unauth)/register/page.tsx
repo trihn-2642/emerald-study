@@ -1,17 +1,18 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
-import { registerSchema, type RegisterFormValues } from "@/lib/auth-schemas";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { FormField } from "@/components/ui/form-field";
-import { PasswordInput } from "@/components/ui/password-input";
+import { zodResolver } from '@hookform/resolvers/zod';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { FormField } from '@/components/ui/form-field';
+import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
+import { registerSchema, type RegisterFormValues } from '@/lib/auth-schemas';
+import { createClient } from '@/lib/supabase/client';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -35,29 +36,29 @@ export default function RegisterPage() {
     });
 
     if (error) {
-      setAuthError(error.message ?? "Đăng ký thất bại. Vui lòng thử lại.");
+      setAuthError(error.message ?? 'Đăng ký thất bại. Vui lòng thử lại.');
       return;
     }
 
-    router.push("/dashboard");
+    router.push('/dashboard');
     router.refresh();
   };
 
   return (
     <>
       {/* Branding */}
-      <div className="text-center space-y-3">
-        <h1 className="text-4xl font-extrabold tracking-tight text-on-surface">
+      <div className="space-y-3 text-center">
+        <h1 className="text-on-surface text-4xl font-extrabold tracking-tight">
           Bắt đầu hành trình.
         </h1>
-        <p className="text-slate-500 font-medium">
+        <p className="font-medium text-slate-500">
           Trải nghiệm học tập tinh hoa cùng Emerald Study.
         </p>
       </div>
 
       {/* Registration Card */}
-      <Card className="ring-0 shadow-[0_20px_40px_rgba(11,28,48,0.05)] bg-white">
-        <CardContent className="p-8 md:p-10 space-y-8">
+      <Card className="bg-white shadow-[0_20px_40px_rgba(11,28,48,0.05)] ring-0">
+        <CardContent className="space-y-8 p-8 md:p-10">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               label="Họ và tên"
@@ -69,8 +70,8 @@ export default function RegisterPage() {
                 type="text"
                 placeholder="Nguyễn Văn A"
                 autoComplete="name"
-                className="h-auto py-3.5 px-4 bg-surface-input border-0 focus-visible:ring-2 focus-visible:ring-emerald-500 text-on-surface placeholder:text-slate-300"
-                {...register("fullName")}
+                className="bg-surface-input text-on-surface h-auto border-0 px-4 py-3.5 placeholder:text-slate-300 focus-visible:ring-2 focus-visible:ring-emerald-500"
+                {...register('fullName')}
               />
             </FormField>
 
@@ -84,8 +85,8 @@ export default function RegisterPage() {
                 type="email"
                 placeholder="name@example.com"
                 autoComplete="email"
-                className="h-auto py-3.5 px-4 bg-surface-input border-0 focus-visible:ring-2 focus-visible:ring-emerald-500 text-on-surface placeholder:text-slate-300"
-                {...register("email")}
+                className="bg-surface-input text-on-surface h-auto border-0 px-4 py-3.5 placeholder:text-slate-300 focus-visible:ring-2 focus-visible:ring-emerald-500"
+                {...register('email')}
               />
             </FormField>
 
@@ -98,8 +99,8 @@ export default function RegisterPage() {
                 id="password"
                 placeholder="••••••••"
                 autoComplete="new-password"
-                className="h-auto py-3.5 px-4 bg-surface-input border-0 focus-visible:ring-2 focus-visible:ring-emerald-500 text-on-surface placeholder:text-slate-300"
-                {...register("password")}
+                className="bg-surface-input text-on-surface h-auto border-0 px-4 py-3.5 placeholder:text-slate-300 focus-visible:ring-2 focus-visible:ring-emerald-500"
+                {...register('password')}
               />
             </FormField>
 
@@ -112,37 +113,37 @@ export default function RegisterPage() {
                 id="confirmPassword"
                 placeholder="••••••••"
                 autoComplete="new-password"
-                className="h-auto py-3.5 px-4 bg-surface-input border-0 focus-visible:ring-2 focus-visible:ring-emerald-500 text-on-surface placeholder:text-slate-300"
-                {...register("confirmPassword")}
+                className="bg-surface-input text-on-surface h-auto border-0 px-4 py-3.5 placeholder:text-slate-300 focus-visible:ring-2 focus-visible:ring-emerald-500"
+                {...register('confirmPassword')}
               />
             </FormField>
 
             {/* Terms */}
             <div className="space-y-1.5 pt-2">
               <div className="flex items-center gap-1.5">
-                <div className="flex items-center h-5">
+                <div className="flex h-5 items-center">
                   <input
                     id="agreeToTerms"
                     type="checkbox"
                     className="h-4 w-4 rounded border-gray-300 accent-emerald-600"
-                    {...register("agreeToTerms")}
+                    {...register('agreeToTerms')}
                   />
                 </div>
                 <label
                   htmlFor="agreeToTerms"
-                  className="text-[13px] text-slate-500 leading-tight cursor-pointer"
+                  className="cursor-pointer text-[13px] leading-tight text-slate-500"
                 >
-                  Tôi đồng ý với các{" "}
+                  Tôi đồng ý với các{' '}
                   <Link
                     href="#"
-                    className="text-emerald-700 font-medium hover:underline"
+                    className="font-medium text-emerald-700 hover:underline"
                   >
                     Điều khoản dịch vụ
-                  </Link>{" "}
-                  và{" "}
+                  </Link>{' '}
+                  và{' '}
                   <Link
                     href="#"
-                    className="text-emerald-700 font-medium hover:underline"
+                    className="font-medium text-emerald-700 hover:underline"
                   >
                     Chính sách bảo mật
                   </Link>
@@ -150,7 +151,7 @@ export default function RegisterPage() {
                 </label>
               </div>
               {errors.agreeToTerms && (
-                <p className="text-xs text-red-500 ml-1">
+                <p className="ml-1 text-xs text-red-500">
                   {errors.agreeToTerms.message}
                 </p>
               )}
@@ -165,9 +166,9 @@ export default function RegisterPage() {
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full h-auto py-4 bg-linear-to-br from-brand-deep to-emerald-500 text-white font-semibold shadow-sm hover:opacity-90"
+              className="from-brand-deep h-auto w-full bg-linear-to-br to-emerald-500 py-4 font-semibold text-white shadow-sm hover:opacity-90"
             >
-              {isSubmitting ? "Đang tạo tài khoản…" : "Đăng ký tài khoản"}
+              {isSubmitting ? 'Đang tạo tài khoản…' : 'Đăng ký tài khoản'}
             </Button>
           </form>
         </CardContent>
@@ -175,11 +176,11 @@ export default function RegisterPage() {
 
       {/* Login link */}
       <div className="text-center">
-        <p className="text-slate-500 font-medium text-sm">
-          Đã có tài khoản?{" "}
+        <p className="text-sm font-medium text-slate-500">
+          Đã có tài khoản?{' '}
           <Link
             href="/login"
-            className="text-emerald-700 font-bold hover:underline ml-1"
+            className="ml-1 font-bold text-emerald-700 hover:underline"
           >
             Đăng nhập ngay
           </Link>

@@ -1,5 +1,6 @@
-import { create } from "zustand";
-import type { Flashcard } from "@/types";
+import { create } from 'zustand';
+
+import type { Flashcard } from '@/types';
 
 interface StudyState {
   sessionCards: Flashcard[];

@@ -21,6 +21,14 @@
 | Forms     | `react-hook-form`, `zod`                 | Form handling + schema validation                 |
 | Utils     | `dayjs`, `clsx`, `tailwind-merge`        | Ngày giờ, class utilities                         |
 | Misc      | `react-confetti`, `lucide-react`         | Confetti animation, icons                         |
+| Nav       | `nextjs-toploader`                       | Top progress bar khi điều hướng                   |
+
+**Dev dependencies quan trọng**:
+
+- `prettier-plugin-tailwindcss` — tự động sắp xếp Tailwind class theo thứ tự chuẩn khi chạy `yarn format`.
+- `eslint-plugin-import` — enforce import ordering theo nhóm + cấm duplicate imports.
+
+**Prettier config** (`.prettierrc`): `singleQuote: true`, `semi: true`, `trailingComma: "all"`, `printWidth: 80`, `tabWidth: 2`.
 
 > ⚠️ **Lưu ý**: Phải cài `@supabase/ssr` (không phải chỉ `@supabase/supabase-js`) để Supabase hoạt động đúng với Next.js App Router cookies.
 
@@ -97,7 +105,9 @@
 - Grid **"Bộ thẻ cần ôn"**: Mỗi card deck hiển thị badge số thẻ đến hạn (Due).
   - Due > 20: badge đỏ. Due 1–20: badge vàng. Due = 0: badge xanh.
   - Nút "Học ngay" (due > 0) hoặc "Xem thẻ" (due = 0).
-- **StatsRow**: 3 chỉ số nhanh — Tổng thẻ, Đến hạn hôm nay, % Đã thuộc.
+- **StatsRow**: 4 chỉ số nhanh — Tổng thẻ, Đến hạn hôm nay, Thẻ mới, % Đã thuộc.
+- **StreakBanner**: Hệ thống thứ hạng động 8 bậc (Học viên → Đồng → Bạc → Vàng → Kim Cương I/II/III → Master) dựa trên XP = streak × 30. Hiển thị tên bậc hiện tại + bậc tiếp theo.
+- **ActivityFeed**: Danh sách hoạt động 2 ngày gần nhất (nhóm theo deck, tối đa 5 mục) với dấu chấm màu (cam/xanh) và thời gian tương đối.
 
 ### C. Phiên học tập (Study Session)
 
@@ -277,6 +287,17 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
 - **Styling**: Không hardcode màu hex — dùng Tailwind token (`bg-surface-page`) hoặc Emerald scale (`bg-emerald-500`). Không dùng inline styles.
 - **React 19**: `forwardRef` không cần thiết — truyền `ref` trực tiếp như prop thông thường. React Compiler đã bật — không cần `useMemo`/`useCallback` thủ công trừ khi profiling chỉ ra vấn đề.
 - **Shared components**: Đặt ở `src/components/ui/` — không tạo folder theo feature (`auth/`, `dashboard/`).
+- **Constants**: Hằng số dùng chung đặt ở `src/constants/index.ts` (e.g. `RANKS`, `LANGUAGE_LABELS`, `XP_PER_STREAK_DAY`).
+- **Utilities**: Pure functions dùng chung đặt ở `src/utils/index.ts` (e.g. `getRank()`, `getProgressColor()`). Không lặp lại logic này inline trong component.
+- **Tailwind class ordering**: `prettier-plugin-tailwindcss` tự động sắp xếp class khi chạy `yarn format`. Không cần sắp xếp thủ công.
+- **Import ordering**: ESLint rule `import/order` (từ `eslint-plugin-import`) tự động enforce thứ tự import theo nhóm:
+  1. `builtin` (fs, path…)
+  2. `external` (react, next, thư viện npm)
+  3. `internal` (alias `@/…`)
+  4. `parent` / `sibling` (`../`, `./`)
+  5. `index`, `object`, `type`
+
+  Mỗi nhóm cách nhau 1 dòng trống. Trong nhóm sắp xếp A-Z. Chạy `yarn lint --fix` để tự sửa. Rule `import/no-duplicates` cấm import trùng.
 
 ---
 
