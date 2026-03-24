@@ -16,17 +16,17 @@ export function FormField({
 }: FormFieldProps) {
   return (
     <div className="space-y-1.5">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <label
           htmlFor={htmlFor}
-          className="block text-[11px] uppercase tracking-widest font-semibold text-slate-400 ml-1"
+          className="ml-1 block text-[11px] font-semibold tracking-widest text-slate-400 uppercase"
         >
           {label}
         </label>
         {labelRight}
       </div>
       {children}
-      {error && <p className="text-xs text-red-500 ml-1">{error}</p>}
+      {error && <p className="ml-1 text-xs text-red-500">{error}</p>}
     </div>
   );
 }

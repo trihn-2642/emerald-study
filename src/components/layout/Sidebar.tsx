@@ -1,49 +1,64 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { LayoutDashboard, BookOpen, Plus, Leaf } from "lucide-react";
-import { cn } from "@/lib/utils";
+import {
+  LayoutDashboard,
+  BookOpen,
+  GraduationCap,
+  BarChart3,
+  Leaf,
+} from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
-const navItems = [
-  { href: "/dashboard", label: "Bảng điều khiển", icon: LayoutDashboard },
-  { href: "/library", label: "Thư viện", icon: BookOpen },
-  { href: "/cards/new", label: "Thêm thẻ", icon: Plus },
+import { cn } from '@/lib/utils';
+
+const mainNavItems = [
+  { href: '/dashboard', label: 'Trang chủ', icon: LayoutDashboard },
+  { href: '/library', label: 'Thư viện', icon: BookOpen },
+  { href: '/study', label: 'Phiên học', icon: GraduationCap },
+  { href: '/stats', label: 'Thống kê', icon: BarChart3 },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden md:flex flex-col w-60 shrink-0 min-h-screen bg-emerald-950 border-r border-emerald-900">
+    <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col overflow-y-auto border-r border-slate-200/50 bg-slate-50 md:flex">
       {/* Logo */}
-      <div className="flex items-center gap-3 h-16 px-5 border-b border-emerald-900">
-        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-500 shrink-0">
-          <Leaf className="w-4 h-4 text-white" />
+      <div className="mb-8 px-6 pt-8">
+        <div className="flex items-center gap-2">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-500">
+            <Leaf className="h-4 w-4 text-white" />
+          </div>
+          <h1 className="text-lg font-bold tracking-tight text-emerald-700">
+            Emerald Study
+          </h1>
         </div>
-        <span className="text-white font-semibold text-sm tracking-wide">
-          Emerald Study
-        </span>
+        <p className="mt-1.5 ml-0.5 text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+          Học thuật &amp; Tối giản
+        </p>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-0.5">
-        {navItems.map(({ href, label, icon: Icon }) => {
+      {/* Main navigation */}
+      <nav className="flex-1 space-y-0.5 px-3">
+        {mainNavItems.map(({ href, label, icon: Icon }) => {
           const isActive =
             pathname === href ||
-            (href !== "/cards/new" && pathname.startsWith(href + "/"));
+            (href !== '/study' &&
+              href !== '/stats' &&
+              pathname.startsWith(href + '/'));
           return (
             <Link
               key={href}
               href={href}
               className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                'flex items-center gap-3 rounded-sm px-4 py-3 text-sm font-medium transition-colors',
                 isActive
-                  ? "bg-emerald-500 text-white"
-                  : "text-emerald-100/60 hover:text-emerald-100 hover:bg-emerald-900",
+                  ? 'border-r-2 border-emerald-600 bg-emerald-50 font-semibold text-emerald-700'
+                  : 'text-slate-500 hover:bg-emerald-50/70 hover:text-emerald-600',
               )}
             >
-              <Icon className="w-4 h-4 shrink-0" />
+              <Icon className="h-4 w-4 shrink-0" />
               <span>{label}</span>
             </Link>
           );

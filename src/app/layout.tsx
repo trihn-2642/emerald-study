@@ -1,22 +1,25 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import NextTopLoader from "nextjs-toploader";
-import "./globals.css";
+import { Inter, Noto_Sans_SC } from 'next/font/google';
+import NextTopLoader from 'nextjs-toploader';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+import './globals.css';
+import { cn } from '@/lib/utils';
+
+import type { Metadata } from 'next';
+
+const inter = Inter({
+  subsets: ['latin', 'vietnamese'],
+  variable: '--font-sans',
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const notoSC = Noto_Sans_SC({
+  subsets: ['latin'],
+  variable: '--font-cn',
 });
 
 export const metadata: Metadata = {
-  title: "Emerald Flashcards",
+  title: 'Emerald Flashcards',
   description:
-    "Học từ vựng đa ngôn ngữ với thuật toán Spaced Repetition (FSRS).",
+    'Học từ vựng đa ngôn ngữ với thuật toán Spaced Repetition (FSRS).',
 };
 
 export default function RootLayout({
@@ -27,10 +30,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={cn(inter.variable, notoSC.variable, 'h-full antialiased')}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col" suppressHydrationWarning>
+      <body className="flex min-h-full flex-col" suppressHydrationWarning>
         <NextTopLoader color="#10b981" shadow={false} showSpinner={false} />
         {children}
       </body>

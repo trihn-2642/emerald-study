@@ -10,27 +10,32 @@ Thiết lập toàn bộ nền tảng kỹ thuật cho dự án: kiến trúc th
 
 ### Tạo mới
 
-| File                                   | Mô tả                                                               |
-| -------------------------------------- | ------------------------------------------------------------------- |
-| `src/types/flashcard.ts`               | TypeScript interfaces: `Flashcard`, `Deck`, `FsrsData`, `Example`   |
-| `src/types/index.ts`                   | Re-export tất cả types                                              |
-| `src/lib/supabase/client.ts`           | Supabase browser client (`createBrowserClient`)                     |
-| `src/lib/supabase/server.ts`           | Supabase server client (`createServerClient`)                       |
-| `src/lib/supabase/middleware.ts`       | Supabase middleware helper                                          |
-| `src/store/useStudyStore.ts`           | Zustand store: `isFlipped`, `currentIndex`, `sessionCards`, actions |
-| `src/store/useUIStore.ts`              | Zustand store: trạng thái UI toàn cục (sidebar open/close, theme)   |
-| `src/components/layout/Sidebar.tsx`    | Sidebar navigation cho Desktop                                      |
-| `src/components/layout/BottomNav.tsx`  | Bottom navigation cho Mobile                                        |
-| `src/components/layout/AppShell.tsx`   | Layout wrapper kết hợp Sidebar + BottomNav                          |
-| `src/components/ui/form-field.tsx`     | Form field wrapper (label + error) dùng chung mọi màn hình          |
-| `src/components/ui/password-input.tsx` | Input mật khẩu có toggle hiện/ẩn, React 19 (không dùng forwardRef)  |
-| `src/app/(auth)/layout.tsx`            | App route group layout sử dụng AppShell                             |
-| `src/app/(auth)/page.tsx`              | Redirect về `/dashboard`                                            |
-| `src/app/(unauth)/layout.tsx`          | Layout trang auth: centered, không sidebar                          |
-| `src/app/(unauth)/login/page.tsx`      | Trang đăng nhập: form email + password, link sang `/register`       |
-| `src/app/(unauth)/register/page.tsx`   | Trang đăng ký: form tạo tài khoản, tự login sau khi tạo xong        |
-| `src/proxy.ts`                         | File thực thi chính của Next.js 16, gọi hàm từ thư mục lib ở trên.  |
-| `.env.local.example`                   | Template biến môi trường Supabase                                   |
+| File                                   | Mô tả                                                                              |
+| -------------------------------------- | ---------------------------------------------------------------------------------- |
+| `src/types/flashcard.ts`               | TypeScript interfaces: `Flashcard`, `Deck`, `FsrsData`, `Example`                  |
+| `src/types/index.ts`                   | Re-export tất cả types                                                             |
+| `src/lib/supabase/client.ts`           | Supabase browser client (`createBrowserClient`)                                    |
+| `src/lib/supabase/server.ts`           | Supabase server client (`createServerClient`) + `getUser()` cache                  |
+| `src/lib/supabase/middleware.ts`       | Supabase middleware helper                                                         |
+| `src/store/useStudyStore.ts`           | Zustand store: `isFlipped`, `currentIndex`, `sessionCards`, actions                |
+| `src/store/useUIStore.ts`              | Zustand store: trạng thái UI toàn cục (sidebar open/close, theme)                  |
+| `src/components/layout/Sidebar.tsx`    | Sidebar navigation cho Desktop (4 items: Trang chủ, Thư viện, Phiên học, Thống kê) |
+| `src/components/layout/BottomNav.tsx`  | Bottom navigation cho Mobile (4 tabs)                                              |
+| `src/components/layout/AppShell.tsx`   | Layout wrapper: Sidebar + BottomNav + sticky header + UserMenu                     |
+| `src/components/layout/UserMenu.tsx`   | Dropdown user menu: avatar initials, tên, email, Đăng xuất                         |
+| `src/components/ui/form-field.tsx`     | Form field wrapper (label + error) dùng chung mọi màn hình                         |
+| `src/components/ui/password-input.tsx` | Input mật khẩu có toggle hiện/ẩn, React 19 (không dùng forwardRef)                 |
+| `src/components/ui/spinner.tsx`        | Spinner component dùng chung, màu `emerald-500`                                    |
+| `src/constants/index.ts`               | Hằng số dùng chung: `RANKS`, `XP_PER_STREAK_DAY`, `LANGUAGE_LABELS`                |
+| `src/utils/index.ts`                   | Utility functions: `getRank(xp)`, `getProgressColor(percent)`                      |
+| `src/app/(unth)/layout.tsx`            | Protected route group layout sử dụng AppShell, auth guard                          |
+| `src/app/(unth)/page.tsx`              | Redirect về `/dashboard`                                                           |
+| `src/app/loading.tsx`                  | Global loading spinner khi điều hướng                                              |
+| `src/app/(unauth)/layout.tsx`          | Layout trang auth: centered, không sidebar                                         |
+| `src/app/(unauth)/login/page.tsx`      | Trang đăng nhập: form email + password, link sang `/register`                      |
+| `src/app/(unauth)/register/page.tsx`   | Trang đăng ký: form tạo tài khoản, tự login sau khi tạo xong                       |
+| `src/proxy.ts`                         | File thực thi chính của Next.js 16, gọi hàm từ thư mục lib ở trên.                 |
+| `.env.local.example`                   | Template biến môi trường Supabase                                                  |
 
 ### Sửa
 
@@ -76,7 +81,7 @@ export interface Flashcard {
   fsrs_data: FsrsData;
   next_review: string; // ISO timestamp UTC
   created_at: string;
-  language: "zh" | "en";
+  language: 'zh' | 'en';
 }
 
 export interface Deck {
@@ -84,7 +89,7 @@ export interface Deck {
   user_id: string;
   name: string;
   description: string;
-  language: "zh" | "en";
+  language: 'zh' | 'en';
   card_count: number;
   due_count: number;
   mastery_percent: number;
@@ -94,9 +99,10 @@ export interface Deck {
 
 ### Sidebar Navigation Items
 
-- 🏠 Bảng điều khiển → `/dashboard`
+- 🏠 Trang chủ → `/dashboard`
 - 📚 Thư viện → `/library`
-- ➕ Thêm thẻ → `/cards/new`
+- 🎓 Phiên học → `/study`
+- 📊 Thống kê → `/stats`
 
 ### Màu Emerald Theme (`src/app/globals.css` — `@theme inline`)
 
@@ -128,27 +134,32 @@ Chỉ dùng thêm Tailwind Emerald scale theo nhu cầu: `emerald-500`, `emerald
 
 ### Cài đặt Packages
 
-- [ ] `@supabase/ssr` đã cài: `yarn add @supabase/ssr`
-- [ ] `react-hook-form` đã cài: `yarn add react-hook-form`
-- [ ] `zod` đã cài: `yarn add zod`
+- [x] `@supabase/ssr` đã cài: `yarn add @supabase/ssr`
+- [x] `react-hook-form` đã cài: `yarn add react-hook-form`
+- [x] `zod` đã cài: `yarn add zod`
+- [x] `nextjs-toploader` đã cài — top progress bar khi điều hướng
+- [x] `prettier-plugin-tailwindcss` đã cài (devDep) — `yarn format` tự sắp xếp Tailwind classes
+- [x] `eslint-plugin-import` đã cài (devDep) — `import/order` enforce nhóm import, `import/no-duplicates` cấm trùng
+- [x] `.prettierrc` cấu hình: `singleQuote`, `semi`, `trailingComma: "all"`, `printWidth: 80`
+- [x] `.prettierignore` loại trừ: `.next/`, `node_modules/`, `public/`, `*.config.*`, lockfiles
 
 ### Types & Config
 
-- [ ] `Flashcard` interface đủ tất cả fields theo SPEC
-- [ ] `Deck` interface có `due_count` và `mastery_percent`
-- [ ] `.env.local.example` có `NEXT_PUBLIC_SUPABASE_URL` và `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- [x] `Flashcard` interface đủ tất cả fields theo SPEC
+- [x] `Deck` interface có `due_count` và `mastery_percent`
+- [x] `.env.local.example` có `NEXT_PUBLIC_SUPABASE_URL` và `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
 ### Supabase
 
-- [ ] `client.ts` dùng `@supabase/ssr` `createBrowserClient` (không phải `@supabase/supabase-js` trực tiếp)
-- [ ] `server.ts` dùng `@supabase/ssr` `createServerClient` + Next.js `cookies()`
-- [ ] `src/proxy.ts` gọi hàm refresh session từ `middleware` helper refresh session và protect routes `/dashboard`, `/library`, `/cards`
+- [x] `client.ts` dùng `@supabase/ssr` `createBrowserClient` (không phải `@supabase/supabase-js` trực tiếp)
+- [x] `server.ts` dùng `@supabase/ssr` `createServerClient` + Next.js `cookies()`
+- [x] `src/proxy.ts` gọi hàm refresh session từ `middleware` helper refresh session và protect routes `/dashboard`, `/library`, `/cards`
 
 ### Zustand Store
 
-- [ ] `useStudyStore` có state: `isFlipped`, `currentIndex`, `sessionCards: Flashcard[]`
-- [ ] `useStudyStore` có actions: `flipCard()`, `nextCard()`, `setSession(cards)`, `reset()`
-- [ ] `useUIStore` có state: `isSidebarOpen`, actions: `toggleSidebar()`
+- [x] `useStudyStore` có state: `isFlipped`, `currentIndex`, `sessionCards: Flashcard[]`
+- [x] `useStudyStore` có actions: `flipCard()`, `nextCard()`, `setSession(cards)`, `reset()`
+- [x] `useUIStore` có state: `isSidebarOpen`, actions: `toggleSidebar()`
 
 ### Layout & Components
 
@@ -156,7 +167,7 @@ Chỉ dùng thêm Tailwind Emerald scale theo nhu cầu: `emerald-500`, `emerald
 - [x] `Sidebar` có logo "Emerald Study" với icon lá màu xanh
 - [x] `Sidebar` highlight active route
 - [x] `BottomNav` có 4 icon tabs tương ứng với nav items
-- [x] Route group `(auth)` áp dụng `AppShell` layout
+- [x] Route group `(unth)` áp dụng `AppShell` layout
 - [x] `proxy.ts` được đặt tại src/proxy.ts
 - [x] `FormField` (`src/components/ui/form-field.tsx`) — dùng chung, không phụ thuộc vào folder `auth/`
 - [x] `PasswordInput` (`src/components/ui/password-input.tsx`) — React 19 (không dùng `forwardRef`), dùng shadcn `Input` nội tại

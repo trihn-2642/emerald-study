@@ -1,1 +1,1 @@
-export type { FsrsData, Example, Flashcard, Deck } from "./flashcard";
+export type { FsrsData, Example, Flashcard, Deck } from './flashcard';

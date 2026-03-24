@@ -1,5 +1,5 @@
-import { Leaf } from "lucide-react";
-import Link from "next/link";
+import { Leaf } from 'lucide-react';
+import Link from 'next/link';
 
 export default function AuthLayout({
   children,
@@ -7,12 +7,12 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col bg-surface-page text-on-surface antialiased">
+    <div className="bg-surface-page text-on-surface flex min-h-screen flex-col antialiased">
       {/* Fixed Header */}
-      <header className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-sm h-16 flex items-center justify-center">
+      <header className="fixed top-0 z-50 flex h-16 w-full items-center justify-center bg-white/80 shadow-sm backdrop-blur-xl">
         <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-emerald-500">
-            <Leaf className="w-4 h-4 text-white" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500">
+            <Leaf className="h-4 w-4 text-white" />
           </div>
           <span className="text-xl font-bold tracking-tight text-emerald-700">
             Emerald Study
@@ -21,32 +21,32 @@ export default function AuthLayout({
       </header>
 
       {/* Main content */}
-      <main className="grow flex items-center justify-center px-6 pt-19 pb-6">
-        <div className="w-full max-w-110 flex flex-col gap-8">{children}</div>
+      <main className="flex grow items-center justify-center px-6 pt-19 pb-6">
+        <div className="flex w-full max-w-110 flex-col gap-8">{children}</div>
       </main>
 
       {/* Footer */}
-      <footer className="w-full py-6 bg-slate-50 mt-auto border-t border-slate-100">
-        <div className="flex flex-col md:flex-row items-center justify-between px-8  mx-auto gap-4">
-          <p className="text-[11px] uppercase tracking-widest font-medium text-slate-400">
+      <footer className="mt-auto w-full border-t border-slate-100 bg-slate-50 py-6">
+        <div className="mx-auto flex flex-col items-center justify-between gap-4 px-8 md:flex-row">
+          <p className="text-[11px] font-medium tracking-widest text-slate-400 uppercase">
             © 2026 Emerald Study. Trải nghiệm học tập tinh hoa.
           </p>
           <div className="flex gap-6">
             <Link
               href="#"
-              className="text-[11px] uppercase tracking-widest font-medium text-slate-400 hover:text-emerald-600 transition-all"
+              className="text-[11px] font-medium tracking-widest text-slate-400 uppercase transition-all hover:text-emerald-600"
             >
               Điều khoản
             </Link>
             <Link
               href="#"
-              className="text-[11px] uppercase tracking-widest font-medium text-slate-400 hover:text-emerald-600 transition-all"
+              className="text-[11px] font-medium tracking-widest text-slate-400 uppercase transition-all hover:text-emerald-600"
             >
               Bảo mật
             </Link>
             <Link
               href="#"
-              className="text-[11px] uppercase tracking-widest font-medium text-slate-400 hover:text-emerald-600 transition-all"
+              className="text-[11px] font-medium tracking-widest text-slate-400 uppercase transition-all hover:text-emerald-600"
             >
               Trợ giúp
             </Link>
