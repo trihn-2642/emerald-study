@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 
+import { AnimatedProgress } from '@/components/ui/animated-progress';
 import { CountUp } from '@/components/ui/count-up';
-import { Progress } from '@/components/ui/progress';
 import { getProgressColor } from '@/utils';
 
 type Props = {
@@ -49,7 +49,7 @@ export function TodayGoalWidget({ reviewed, total }: Props) {
               {percent}%
             </span>
           </div>
-          <Progress
+          <AnimatedProgress
             value={percent}
             className="bg-surface-input h-3"
             indicatorClassName={getProgressColor(percent)}

@@ -90,7 +90,7 @@
 
 - **Đăng ký / Đăng nhập**: Email + Password qua Supabase Auth.
 - **Provider**: Chỉ Email/Password (Google OAuth có thể thêm sau).
-- **Routes bảo vệ**: Tất cả routes dưới `/(unth)` đều yêu cầu đăng nhập.
+- **Routes bảo vệ**: Tất cả routes dưới `/(auth)` đều yêu cầu đăng nhập.
 - **Middleware**: `middleware.ts` ở root dùng `@supabase/ssr` để refresh session, redirect về `/login` nếu chưa auth.
 - **Pages**:
   - `/login` — Form đăng nhập, link sang đăng ký.
@@ -135,22 +135,27 @@
 
 ### D. Thư viện & Quản lý Deck (Library)
 
-- **Library page** (`/library`): Grid tất cả decks của user, filter theo ngôn ngữ [Tất cả / Tiếng Trung / Tiếng Anh].
+- **Library page** (`/library`): Grid tất cả decks của user, filter theo ngôn ngữ [Tất cả / Tiếng Trung / Tiếng Anh]. Streaming với `<Suspense>` cho từng section.
+- **LibraryDecksSection**: Server Component async, render grid + empty state.
+- **LibraryStatsSection**: Server Component async, render CTA gradient card + stats 2×2 tiles (CountUp animation).
 - **Deck Detail page** (`/library/[deckId]`): Danh sách thẻ dạng bảng với sort/search, stats tổng quan.
-- **Tạo deck mới**: Dialog inline trên Library page (tên, mô tả, ngôn ngữ).
-- **Xóa deck**: Confirmation dialog, xóa cascade tất cả thẻ trong deck.
+- **Tạo deck mới**: Dialog inline trên Library page (tên, mô tả, ngôn ngữ). Toast thành công/thất bại.
+- **Chỉnh sửa deck**: `EditDeckDialog` mở từ 3-dot dropdown menu trên card — prefilled form, gọi `updateDeck` Server Action. Toast kết quả.
+- **Xóa deck**: Confirmation dialog từ 3-dot dropdown, toast kết quả. Xóa cascade tất cả thẻ trong deck.
+- **Mutations** (`createDeck`, `updateDeck`, `deleteDeck`): Server Actions đặt trong `src/lib/data/library.ts` cùng với data fetching functions.
+- **Loading overlay**: Khi `isPending = true` (đang gọi Server Action), hiển thị `<Loading />` từ `src/app/loading.tsx` — fixed backdrop blur + Spinner.
 
 ### E. Tìm kiếm & Sắp xếp (Search & Sort)
 
 - Tìm kiếm theo `front` hoặc `meaning_vn` (client-side filtering).
 - Lọc theo Chip: [Tất cả, Tiếng Trung, Tiếng Anh].
-- Sắp xếp theo: Đến hạn sớm nhất, Mức độ thuộc (%), Mới nhất.
-- Filter state sync với URL search params (`?q=&lang=&sort=`).
+- Sắp xếp theo: Đến hạn sớm nhất, Mức độ thuộc (%), Tên A-Z, Tên Z-A.
+- Filter state quản lý client-side bằng `useState` (không sync URL params — có thể thêm sau).
 
 ### F. Thêm & Chỉnh sửa thẻ (Add/Edit Card)
 
-- **Add** (`/cards/new`): Form tạo thẻ mới với preview realtime bên phải.
-- **Edit** (`/cards/[cardId]/edit`): Load card data, cho phép chỉnh sửa content fields (không reset `fsrs_data`).
+- **Add** (`/library/[deckId]/cards/new`): Form tạo thẻ mới với preview realtime bên phải, deck pre-selected theo URL.
+- **Edit** (`/library/[deckId]/cards/[cardId]/edit`): Load card data, cho phép chỉnh sửa content fields (không reset `fsrs_data`).
 - **Delete**: Confirmation dialog trong trang Edit, redirect về `/library/[deckId]` sau khi xóa.
 - Form validation bằng `zod` + `react-hook-form`, lỗi hiển thị inline bằng tiếng Việt.
 - Examples: tối đa 5, dùng `useFieldArray` từ `react-hook-form`.
@@ -211,13 +216,13 @@ create policy "Users manage own flashcards"
 /                       → redirect → /dashboard (nếu đã login) hoặc /login
 /login                  → Trang đăng nhập
 /register               → Trang đăng ký
-/(unth)                  → Route group bảo vệ (yêu cầu auth)
+/(auth)                  → Route group bảo vệ (yêu cầu auth)
   /dashboard            → Bảng điều khiển
   /library              → Thư viện tất cả decks
-  /library/[deckId]     → Chi tiết 1 deck + danh sách thẻ
+  /library/[deckId]/cards     → Chi tiết 1 deck + danh sách thẻ
   /study/[deckId]       → Phiên học tập
-  /cards/new            → Thêm thẻ mới
-  /cards/[cardId]/edit  → Chỉnh sửa thẻ
+  /library/[deckId]/cards/new            → Thêm thẻ mới
+  /library/[deckId]/cards/[cardId]/edit  → Chỉnh sửa thẻ
 ```
 
 ---
@@ -281,7 +286,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
 - **Form Validation**: Dùng `zod` schema + `react-hook-form`, error message bằng **tiếng Việt**.
 - **Mobile First**: Sidebar Desktop → Bottom Nav Mobile (breakpoint `md: 768px`).
 - **Error Handling**: Toast (Shadcn Sonner) cho success/error. Error boundary cho lỗi render.
-- **Loading States**: Dùng `loading.tsx` ở mỗi route segment hoặc `<Suspense>` + skeleton components. Component `Spinner` (`src/components/ui/spinner.tsx`) dùng chung, màu `emerald-500`.
+- **Loading States**: Dùng `loading.tsx` ở mỗi route segment hoặc `<Suspense>` + skeleton components. Component `Spinner` (`src/components/ui/spinner.tsx`) dùng chung, màu `emerald-500`. Khi gọi Server Action từ dialog/form, import `Loading` từ `src/app/loading.tsx` và render khi `isPending = true`.
+- **shadcn/ui Priority**: Ưu tiên dùng shadcn component thay vì nhúng raw HTML + Tailwind. Trước khi viết `<select>`, `<input>`, `<button>`, `<textarea>`, kiểm tra xem shadcn có component tương ứng không (`Select`, `Input`, `Button`, `Textarea`, `DropdownMenu`, `Dialog`…). Cài thêm component: `npx shadcn@latest add <component-name>`.
 - **Date/Time**: Dùng `dayjs` cho mọi thao tác ngày giờ. Lưu UTC trong DB, hiển thị local timezone.
 - **RLS**: Mọi query phải đi qua RLS — không dùng `service_role` key ở client.
 - **Styling**: Không hardcode màu hex — dùng Tailwind token (`bg-surface-page`) hoặc Emerald scale (`bg-emerald-500`). Không dùng inline styles.

@@ -1,5 +1,3 @@
-import { Plus } from 'lucide-react';
-import Link from 'next/link';
 import { Suspense } from 'react';
 
 import { DecksSection } from '@/components/dashboard/DecksSection';
@@ -35,15 +33,6 @@ export default async function DashboardPage() {
       <Suspense fallback={<DecksSkeleton />}>
         <DecksSection userId={user.id} />
       </Suspense>
-
-      {/* Floating Action Button */}
-      <Link
-        href="/cards/new"
-        className="fixed right-6 bottom-24 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-600 text-white shadow-lg transition-colors hover:bg-emerald-700 active:scale-90 md:bottom-8"
-        aria-label="Thêm thẻ mới"
-      >
-        <Plus className="h-6 w-6" />
-      </Link>
     </div>
   );
 }

@@ -1,4 +1,3 @@
-import { MoreVertical } from 'lucide-react';
 import Link from 'next/link';
 
 import { LANGUAGE_LABELS } from '@/constants';
@@ -13,7 +12,7 @@ type Props = {
 export function DeckCard({ deck }: Props) {
   const lang = LANGUAGE_LABELS[deck.language] ?? LANGUAGE_LABELS.en;
   const hasDue = deck.due_count > 0;
-  const studyHref = hasDue ? `/study/${deck.id}` : `/library/${deck.id}`;
+  const studyHref = hasDue ? `/study/${deck.id}` : `/library/${deck.id}/cards`;
 
   return (
     <div className="group flex flex-col rounded-xl border-b-4 border-transparent bg-white p-6 shadow-sm transition-all hover:border-emerald-500 hover:bg-slate-50">
@@ -26,11 +25,17 @@ export function DeckCard({ deck }: Props) {
         >
           {lang.label}
         </span>
-        <MoreVertical className="h-4 w-4 text-slate-300 transition-colors group-hover:text-emerald-300" />
       </div>
 
-      <h4 className="text-on-surface text-base font-bold">{deck.name}</h4>
-      <p className="mt-2 mb-6 line-clamp-2 flex-1 text-xs text-slate-400">
+      <h4 className="text-on-surface truncate text-base font-bold whitespace-pre">
+        {deck.name}
+      </h4>
+      <p
+        className={cn(
+          'mt-2 mb-4 line-clamp-2 flex-1 text-xs whitespace-break-spaces text-slate-400',
+          !deck.description && 'text-slate-300 italic',
+        )}
+      >
         {deck.description || 'Không có mô tả.'}
       </p>
 

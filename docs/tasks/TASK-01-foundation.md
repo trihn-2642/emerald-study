@@ -28,8 +28,8 @@ Thiết lập toàn bộ nền tảng kỹ thuật cho dự án: kiến trúc th
 | `src/components/ui/spinner.tsx`        | Spinner component dùng chung, màu `emerald-500`                                    |
 | `src/constants/index.ts`               | Hằng số dùng chung: `RANKS`, `XP_PER_STREAK_DAY`, `LANGUAGE_LABELS`                |
 | `src/utils/index.ts`                   | Utility functions: `getRank(xp)`, `getProgressColor(percent)`                      |
-| `src/app/(unth)/layout.tsx`            | Protected route group layout sử dụng AppShell, auth guard                          |
-| `src/app/(unth)/page.tsx`              | Redirect về `/dashboard`                                                           |
+| `src/app/(auth)/layout.tsx`            | Protected route group layout sử dụng AppShell, auth guard                          |
+| `src/app/(auth)/page.tsx`              | Redirect về `/dashboard`                                                           |
 | `src/app/loading.tsx`                  | Global loading spinner khi điều hướng                                              |
 | `src/app/(unauth)/layout.tsx`          | Layout trang auth: centered, không sidebar                                         |
 | `src/app/(unauth)/login/page.tsx`      | Trang đăng nhập: form email + password, link sang `/register`                      |
@@ -167,7 +167,7 @@ Chỉ dùng thêm Tailwind Emerald scale theo nhu cầu: `emerald-500`, `emerald
 - [x] `Sidebar` có logo "Emerald Study" với icon lá màu xanh
 - [x] `Sidebar` highlight active route
 - [x] `BottomNav` có 4 icon tabs tương ứng với nav items
-- [x] Route group `(unth)` áp dụng `AppShell` layout
+- [x] Route group `(auth)` áp dụng `AppShell` layout
 - [x] `proxy.ts` được đặt tại src/proxy.ts
 - [x] `FormField` (`src/components/ui/form-field.tsx`) — dùng chung, không phụ thuộc vào folder `auth/`
 - [x] `PasswordInput` (`src/components/ui/password-input.tsx`) — React 19 (không dùng `forwardRef`), dùng shadcn `Input` nội tại
@@ -177,7 +177,7 @@ Chỉ dùng thêm Tailwind Emerald scale theo nhu cầu: `emerald-500`, `emerald
 
 - [x] CSS variables emerald được khai báo trong `globals.css`
 - [x] `Spinner` (`src/components/ui/spinner.tsx`) — spin xanh `emerald-500`, dùng chung
-- [x] `loading.tsx` ở `(unth)/` và `(unauth)/` hiển thị spinner khi điều hướng
+- [x] `loading.tsx` ở `(auth)/` và `(unauth)/` hiển thị spinner khi điều hướng
 - [x] App render không lỗi tại `http://localhost:3000`
 
 ---

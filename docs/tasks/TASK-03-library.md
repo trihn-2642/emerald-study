@@ -6,25 +6,25 @@ Xây dựng trang Thư viện để xem tất cả bộ thẻ, tìm kiếm/lọc
 
 ---
 
-## 📁 Các file cần tạo / sửa
+## 📁 Các file đã tạo
 
-### Tạo mới
-
-| File                                          | Mô tả                                                                         |
-| --------------------------------------------- | ----------------------------------------------------------------------------- |
-| `src/app/(unth)/library/page.tsx`             | Server Component: trang thư viện, danh sách decks                             |
-| `src/app/(unth)/library/[deckId]/page.tsx`    | Server Component: Chi tiết 1 deck, danh sách thẻ                              |
-| `src/components/library/DeckListHeader.tsx`   | Header có tiêu đề + nút "⬇ Tạo bộ thẻ mới" mở dialog                          |
-| `src/components/library/CreateDeckDialog.tsx` | Dialog tạo deck mới: trường tên, mô tả, ngôn ngữ (zh/en)                      |
-| `src/components/library/DeleteDeckDialog.tsx` | Dialog xác nhận xóa deck và cảnh báo xoá cascade thẻ                          |
-| `src/components/library/DeckListGrid.tsx`     | Grid tất cả decks với filter ngôn ngữ                                         |
-| `src/components/library/LibraryDeckCard.tsx`  | Card deck trong thư viện: tên, mô tả, stats, language badge                   |
-| `src/components/library/SearchAndFilter.tsx`  | Thanh tìm kiếm + Chip filter [Tất cả, Tiếng Trung, Tiếng Anh] + Sort dropdown |
-| `src/components/library/FlashcardTable.tsx`   | Bảng danh sách thẻ trong deck (Client Component cho sort/search)              |
-| `src/components/library/FlashcardRow.tsx`     | Hàng trong bảng: front, pinyin, meaning_vn, state badge, next_review, actions |
-| `src/components/library/DeckDetailHeader.tsx` | Header deck detail: tên deck, stats tổng quan (tổng thẻ, due, mastery%)       |
-| `src/components/library/MasteryBadge.tsx`     | Badge hiển thị trạng thái FSRS: Mới/Đang học/Ôn tập/Thuộc lòng                |
-| `src/lib/data/library.ts`                     | Server-side data fetching cho Library                                         |
+| File                                             | Mô tả                                                                                                                                  |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/app/(auth)/library/page.tsx`                | Server Component: trang thư viện, 2 Suspense section stream độc lập                                                                    |
+| `src/app/(auth)/library/loading.tsx`             | Skeleton loading state cho Library page                                                                                                |
+| `src/app/(auth)/library/[deckId]/page.tsx`       | Server Component: Chi tiết 1 deck, danh sách thẻ                                                                                       |
+| `src/lib/data/library.ts`                        | Data fetching + Server Actions: `getAllDecks` (cached), `getDeckById`, `getFlashcardsByDeck`, `createDeck`, `updateDeck`, `deleteDeck` |
+| `src/components/library/LibraryDecksSection.tsx` | Server Component: fetch decks, render grid hoặc empty state                                                                            |
+| `src/components/library/LibraryStatsSection.tsx` | Server Component: fetch decks (cached), render CTA + stats 2×2 tiles                                                                   |
+| `src/components/library/Skeleton.tsx`            | `DeckGridSkeleton`, `DeckCardSkeleton`, `LibraryStatsSkeleton`, `StatTileSkeleton`                                                     |
+| `src/components/library/CreateDeckDialog.tsx`    | Dialog tạo deck mới + `useOptimistic` callback + toast + loading overlay                                                               |
+| `src/components/library/EditDeckDialog.tsx`      | Dialog chỉnh sửa deck, prefilled form, gọi `updateDeck` + toast + loading overlay                                                      |
+| `src/components/library/DeleteDeckDialog.tsx`    | Dialog xác nhận xóa deck (cascade flashcards)                                                                                          |
+| `src/components/library/DeckListGrid.tsx`        | Client Component: grid decks + search + filter + sort (shadcn `Select`) + `useOptimistic`                                              |
+| `src/components/library/LibraryDeckCard.tsx`     | Card Bento: 3-dot `DropdownMenu` (Edit/Delete), confirmation dialog, mastery ring, due badge, loading overlay                          |
+| `src/components/library/DeckDetailHeader.tsx`    | Header deck detail: 4 stats + nút Học ngay + DeleteDeckDialog                                                                          |
+| `src/components/library/FlashcardTable.tsx`      | Client Component: bảng thẻ + search + sort + dayjs relative time                                                                       |
+| `src/components/library/MasteryBadge.tsx`        | Badge FSRS state: Mới / Đang học / Ôn tập / Học lại                                                                                    |
 
 ---
 
@@ -33,33 +33,35 @@ Xây dựng trang Thư viện để xem tất cả bộ thẻ, tìm kiếm/lọc
 ### Layout Library Page
 
 ```
-┌─────────────────────────────────────────────┐
-│ Thư viện của bạn          [+ Tạo bộ thẻ mới]│
-├─────────────────────────────────────────────┤
-│ [🔍 Tìm kiếm...] [Tất cả][Tiếng Trung][Anh] │
-├──────────┬──────────┬──────────┬────────────┤
-│ HSK 1-3  │ Business │ Vocab Pro│ Grammar    │
-│ 中文 🔵  │ EN 🟢    │ EN 🟢   │ 中文 🔵   │
-│ 240 thẻ  │ 85 thẻ   │ 120 thẻ │ 60 thẻ    │
-│ 54 đến hạn│ 0 đến hạn│12 đến hạn│ 3 đến hạn │
-│ [Học ngay]│[Xem thẻ] │[Học ngay]│[Học ngay] │
-└──────────┴──────────┴──────────┴────────────┘
+┌──────────────────────────────────────────────────────┐
+│ Thư viện của bạn               [+ Tạo bộ thẻ mới]   │
+├──────────────────────────────────────────────────────┤
+│ [🔍 Tìm bộ thẻ theo tên...]                          │
+│ [Tất cả] [Tiếng Trung] [Tiếng Anh]    [Ngày ôn ▼]   │
+├──────────┬──────────┬──────────┬──────────────────────┤
+│ HSK 1-3  │ Business │ Vocab Pro│  [+ Thêm bộ thẻ mới] │
+│ 📗 57%   │ 📗 50%   │ 📗 33%  │  (dashed placeholder) │
+│ Cần ôn:6 │ Cần ôn:3 │ Cần ôn:2│                       │
+│ CN/VN    │ EN/VN    │ CN/VN   │                       │
+└──────────┴──────────┴──────────┴──────────────────────┘
+│  [⚡ Mục tiêu hôm nay]          [📊 Thống kê nhanh]  │
+└──────────────────────────────────────────────────────┘
 ```
 
 ### Layout Deck Detail Page
 
 ```
 ┌─────────────────────────────────────────────┐
-│ ← Hán tự HSK 1-3                            │
-│ 84 thẻ  |  22 đến hạn  |  18 mới  |  70% 📊│
+│ ← Thư viện                                  │
+│ 📗 Hán tự HSK 1-3  [CN/VN]  [Học ngay (6)] │
+│ 7 thẻ | 6 cần ôn | 0 mới | 57% thuộc lòng  │
 ├─────────────────────────────────────────────┤
-│ [🔍 Tìm...] [Sắp xếp: Đến hạn ▼] [+ Thêm] │
+│ [🔍 Tìm thẻ...]        [Ngày ôn ▼] [+ Thêm]│
 ├──────┬────────┬──────────────┬───────┬──────┤
-│ Mặt trước│Pinyin│Nghĩa TV │Trạng thái│Ôn lại│
+│ Từ/Cụm│Phiên âm│Nghĩa TV   │Trạng thái│Ôn  │
 ├──────┼────────┼──────────────┼───────┼──────┤
-│ 学习 │xué xí │Học tập       │🔵 Ôn  │2 ngày│
-│ 工作 │gōng zuò│Làm việc     │🟢 Thuộc│7 ngày│
-│ 朋友 │péng yǒu│Bạn bè       │🟡 Học │1 ngày│
+│ 学习 │xué xí │Học tập       │Đang học│Hôm nay│
+│ 工作 │gōng zuò│Làm việc    │Ôn tập │7 ngày │
 └──────┴────────┴──────────────┴───────┴──────┘
 ```
 
@@ -67,34 +69,67 @@ Xây dựng trang Thư viện để xem tất cả bộ thẻ, tìm kiếm/lọc
 
 ```typescript
 const STATE_MAP = {
-  0: { label: "Mới", color: "secondary" },
-  1: { label: "Đang học", color: "warning" }, // vàng
-  2: { label: "Ôn tập", color: "default" }, // xanh dương
-  3: { label: "Học lại", color: "destructive" },
+  0: { label: 'Mới', className: 'bg-slate-100 text-slate-600' },
+  1: { label: 'Đang học', className: 'bg-amber-100 text-amber-700' },
+  2: { label: 'Ôn tập', className: 'bg-blue-100 text-blue-700' },
+  3: { label: 'Học lại', className: 'bg-red-100 text-red-700' },
 };
 ```
 
-### `SearchAndFilter` – Client Component
+### Mastery Ring SVG (LibraryDeckCard)
+
+```tsx
+// stroke-dasharray="100" + stroke-dashoffset = 100 - mastery%
+// Màu ring: >= 80% → emerald-600 | >= 60% → emerald-500 | >= 40% → blue-500 | < 40% → orange-400
+<circle
+  strokeDasharray="100"
+  strokeDashoffset={100 - mastery}
+  className="-rotate-90"
+/>
+```
+
+### Optimistic Creation (DeckListGrid + CreateDeckDialog)
 
 ```typescript
-interface FilterState {
-  query: string;
-  language: "all" | "zh" | "en";
-  sortBy: "next_review" | "mastery" | "created_at";
-  sortOrder: "asc" | "desc";
+// DeckListGrid — useOptimistic
+const [optimisticDecks, addOptimisticDeck] = useOptimistic(
+  decks,
+  (state, newDeck: Deck) => [...state, newDeck],
+);
+
+function handleOptimisticCreate(data: DeckFormData) {
+  addOptimisticDeck({ id: `temp-${Date.now()}`, ...data, card_count: 0, ... });
 }
+
+// CreateDeckDialog — gọi callback TRƯỚC server action (bên trong startTransition)
+startTransition(async () => {
+  onOptimisticCreate?.(data);          // hiển thị fake deck ngay lập tức
+  const result = await createDeck(data); // gọi server action
+  if ('success' in result) router.refresh(); // revalidate để lấy real deck
+});
 ```
 
-- Sử dụng `useRouter` + `useSearchParams` để sync filter với URL query params
-- URL example: `/library/[id]?q=学&lang=zh&sort=next_review`
+- Optimistic deck hiển thị với `animate-pulse opacity-70` và `pointer-events-none`
+- Sau khi `router.refresh()` hoàn thành, `useOptimistic` tự drop fake deck → real deck xuất hiện
 
-### Data fetching (`src/lib/data/library.ts`)
+### Data fetching + Mutations (`src/lib/data/library.ts`)
 
 ```typescript
-getAllDecks(userId): Promise<Deck[]>
-getDeckById(deckId): Promise<Deck>
-getFlashcardsByDeck(deckId, filters): Promise<Flashcard[]>
+// Data fetching (React.cache)
+getAllDecks(userId: string): Promise<Deck[]>           // cached — shared across Suspense sections
+getDeckById(deckId: string, userId: string): Promise<DeckDetail | null>
+getFlashcardsByDeck(deckId: string): Promise<Flashcard[]>
+
+// Server Actions
+createDeck(input: DeckInput): Promise<{ error: string } | { success: true }>
+updateDeck(deckId: string, input: DeckUpdateInput): Promise<{ error: string } | { success: true }>
+deleteDeck(deckId: string): Promise<{ error: string } | { success: true }>
 ```
+
+- `DeckDetail extends Deck` với thêm trường `new_count: number`
+- Stats (card_count, due_count, mastery_percent, new_count) được tính parallel bằng `Promise.all`
+- `getAllDecks` wrap bằng `React.cache()` — 2 Suspense sections gọi riêng nhưng chỉ fetch 1 lần/request
+- `createDeck`/`deleteDeck` đặt trong cùng file với `'use server'` directive
 
 ---
 
@@ -102,35 +137,59 @@ getFlashcardsByDeck(deckId, filters): Promise<Flashcard[]>
 
 ### Library Page
 
-- [ ] Grid decks responsive: 2 col mobile, 3-4 col desktop
-- [ ] `LibraryDeckCard` hiển thị: tên, language badge (🔵 中文 / 🟢 EN), tổng thẻ, due count
-- [ ] Chip filter [Tất cả / Tiếng Trung / Tiếng Anh] hoạt động đúng
-- [ ] Thanh tìm kiếm filter deck theo tên realtime (client-side)
-- [ ] Nút "+ Tạo bộ thẻ mới" mở `CreateDeckDialog` (inline dialog, không navigate)
-- [ ] `CreateDeckDialog`: form tên + mô tả + ngôn ngữ, gọi Server Action `createDeck`
-- [ ] `DeleteDeckDialog`: hiển thị cảnh báo xóa cascade, gọi Server Action `deleteDeck`
-- [ ] Empty state khi không có deck
+- [x] Grid decks responsive: 1 col → 2 col (sm) → 3 col (lg) → 4 col (xl)
+- [x] `LibraryDeckCard` Bento card: circular mastery ring SVG, due badge (pulse), language badge, card count
+- [x] Chip filter [Tất cả / Tiếng Trung / Tiếng Anh] hoạt động client-side
+- [x] Thanh tìm kiếm filter deck theo tên realtime (client-side, không fetch server)
+- [x] Sort: Ngày ôn tập / Mức độ thuộc / Tên A-Z / Tên Z-A
+- [x] Nút “+ Tạo bộ thẻ mới” (header) mở `CreateDeckDialog` tự quản lý state
+- [x] Dashed placeholder card mở `CreateDeckDialog` (controlled, không render thêm button)
+- [x] `CreateDeckDialog`: form tên + mô tả + ngôn ngữ, Zod validation, gọi Server Action `createDeck`
+- [x] `useOptimistic` — deck mới hiển thị ngay lập tức, không delay 2-3s
+- [x] `EditDeckDialog`: form prefilled từ deck prop, gọi Server Action `updateDeck`, `useEffect` sync khi deck prop thay đổi
+- [x] `DeleteDeckDialog`: cảnh báo xóa cascade, gọi Server Action `deleteDeck`
+- [x] 3-dot `DropdownMenu` trên mỗi `LibraryDeckCard` — Edit / Delete
+- [x] Delete confirmation `Dialog` trong `LibraryDeckCard` (state `deleteOpen`)
+- [x] `dropdownOpen` state giữ card elevated khi menu đang mở
+- [x] Toast cho tất cả CRUD: tạo ✅, edit ✅, xóa ✅ (dùng `sonner`)
+- [x] Loading overlay (`src/app/loading.tsx`) khi `isPending` trong Create / Edit / Delete
+- [x] shadcn `Select` cho sort dropdown (thay `<select>` native)
+- [x] Empty state khi không có deck
+- [x] Featured section: CTA gradient card + stats 2×2 tiles với CountUp animation
+- [x] Hydration-safe: không dùng RSC children vào DialogTrigger asChild
+- [x] Suspense streaming: `LibraryDecksSection` + `LibraryStatsSection` stream độc lập
+- [x] `getAllDecks` cached với `React.cache()` — 2 sections dùng chung 1 fetch/request
 
 ### Deck Detail Page
 
-- [ ] `DeckDetailHeader` hiển thị 4 stats: tổng thẻ, due, mới, mastery%
-- [ ] `mastery_percent` render bằng `Progress` component
-- [ ] `FlashcardTable` hiển thị đủ columns: front, pinyin, meaning_vn, state, next_review
-- [ ] Sort theo "Đến hạn sớm nhất", "Mức độ thuộc", "Mới nhất" hoạt động
-- [ ] Tìm kiếm theo `front` hoặc `meaning_vn` realtime
-- [ ] `MasteryBadge` hiển thị đúng màu theo FSRS state
-- [ ] Cột "Ôn lại" hiển thị relative time (dùng `dayjs`: "2 ngày", "Hôm nay", "Quá hạn")
-- [ ] Mỗi row có icon edit → link đến `/cards/[cardId]/edit`
+- [x] `DeckDetailHeader` hiển thị 4 stats: tổng thẻ, due, mới, mastery%
+- [x] Back button "← Thư viện" với Link về `/library`
+- [x] Nút "Học ngay (N)" link đến `/study/[deckId]` khi có due cards
+- [x] `FlashcardTable` hiển thị đủ columns: front, pinyin, meaning_vn, state badge, next_review, edit icon
+- [x] Sort: Ngày ôn / Từ A-Z / Trạng thái
+- [x] Tìm kiếm theo `front`, `pinyin`, hoặc `meaning_vn` realtime
+- [x] `MasteryBadge` hiển thị đúng màu theo FSRS state (0-3)
+- [x] Cột "Ôn tiếp" dùng `dayjs`: "Quá hạn" (đỏ), "Hôm nay" (cam), "Ngày mai" (vàng), "X ngày" (muted)
+- [x] Mỗi row có icon edit → link đến `/library/[deckId]/cards/[cardId]/edit`
+- [x] 404 (`notFound()`) khi deck không tồn tại hoặc không thuộc user
 
 ### Search & Filter
 
-- [ ] Filter state sync với URL search params
-- [ ] Filter được reset khi navigate về Library
-- [ ] Không fetch lại server khi chỉ đổi filter (client-side filtering)
+- [x] Filter state quản lý client-side bằng `useState` trong `DeckListGrid`
+- [x] Không fetch lại server khi đổi filter — chỉ filter `optimisticDecks` array
+- [x] Tìm kiếm deck tên: partial match, case-insensitive
+
+### UI Enhancements
+
+- [x] CountUp animation cho tất cả số liệu trong stats card (sử dụng `src/components/ui/count-up.tsx`)
+- [x] Stats card dạng 2×2 grid tile: Đã thuộc / Tổng thẻ / Cần ôn hôm nay / Ngôn ngữ
+- [x] Tỉ lệ thuộc lòng (masteredPct) hiển thị trong tile "Đã thuộc"
+- [x] Language badges CN/EN với count trong tile "Ngôn ngữ"
 
 ### General
 
-- [ ] Back button "← Tên deck" trong Deck Detail
-- [ ] Breadcrumb hoặc page title đúng
-- [ ] Không có lỗi TypeScript
-- [ ] Responsive trên mobile
+- [x] Không có lỗi TypeScript
+- [x] Không có lỗi ESLint
+- [x] Responsive mobile-first
+- [x] Server Components cho tất cả pages, Client Components chỉ cho interactive parts
+- [x] `revalidatePath('/library')` sau mỗi Server Action mutation

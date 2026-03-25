@@ -51,7 +51,7 @@ export async function DecksSection({ userId }: Props) {
         masteryPercent={masteryPercent}
         newCards={newCards}
       />
-      <DeckGrid decks={decks} />
+      <DeckGrid decks={decks.slice(0, 6)} />
     </div>
   );
 }

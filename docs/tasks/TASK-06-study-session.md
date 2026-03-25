@@ -12,8 +12,8 @@ Xây dựng toàn bộ luồng học tập: màn hình flashcard với animation
 
 | File                                        | Mô tả                                                  |
 | ------------------------------------------- | ------------------------------------------------------ |
-| `src/app/(unth)/study/[deckId]/page.tsx`    | Server Component: load session cards, khởi tạo store   |
-| `src/app/(unth)/study/[deckId]/session.tsx` | Client Component: toàn bộ UI phiên học ("use client")  |
+| `src/app/(auth)/study/[deckId]/page.tsx`    | Server Component: load session cards, khởi tạo store   |
+| `src/app/(auth)/study/[deckId]/session.tsx` | Client Component: toàn bộ UI phiên học ("use client")  |
 | `src/components/study/FlashcardView.tsx`    | Thẻ flashcard với flip animation 3D (Framer Motion)    |
 | `src/components/study/CardFront.tsx`        | Mặt trước thẻ: hiển thị `front` (chữ Hán/từ vựng Anh)  |
 | `src/components/study/CardBack.tsx`         | Mặt sau thẻ: pinyin, meaning_vn, meaning_en, examples  |
@@ -71,7 +71,7 @@ interface RatingConfig {
 ### `src/lib/fsrs.ts`
 
 ```typescript
-import { createEmptyCard, fsrs, generatorParameters, Rating } from "ts-fsrs";
+import { createEmptyCard, fsrs, generatorParameters, Rating } from 'ts-fsrs';
 
 const f = fsrs(generatorParameters({ enable_fuzz: true }));
 
