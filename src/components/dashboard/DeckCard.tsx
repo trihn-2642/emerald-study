@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { LANGUAGE_LABELS } from '@/constants';
 import { cn } from '@/lib/utils';
 
+import { Badge } from '../ui/badge';
+
 import type { Deck } from '@/types';
 
 type Props = {
@@ -17,14 +19,12 @@ export function DeckCard({ deck }: Props) {
   return (
     <div className="group flex flex-col rounded-xl border-b-4 border-transparent bg-white p-6 shadow-sm transition-all hover:border-emerald-500 hover:bg-slate-50">
       <div className="mb-5 flex items-start justify-between">
-        <span
-          className={cn(
-            'rounded px-3 py-1 text-[10px] font-black uppercase',
-            lang.className,
-          )}
+        <Badge
+          variant="outline"
+          className={cn('text-[10px] font-black uppercase', lang.className)}
         >
           {lang.label}
-        </span>
+        </Badge>
       </div>
 
       <h4 className="text-on-surface truncate text-base font-bold whitespace-pre">
