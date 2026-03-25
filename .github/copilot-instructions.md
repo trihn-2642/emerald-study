@@ -298,6 +298,9 @@ Always prefer shadcn/ui components over raw HTML elements with Tailwind classes.
 | Custom progress bar             | `<Progress>`                        |
 | Custom badge                    | `<Badge>`                           |
 | Custom scroll area              | `<ScrollArea>`                      |
+| Custom table                    | `<Table>` + `<TableHeader>` etc.    |
+| Info/stat card container        | `<Card>` + `<CardContent>`          |
+| Status/language label           | `<Badge variant="outline">`         |
 
 **Installing a new shadcn component:** `npx shadcn@latest add <component-name>`
 
