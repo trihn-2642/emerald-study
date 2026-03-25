@@ -38,7 +38,7 @@ Components are copied to `src/components/ui/`, not installed as npm dependencies
 src/
   app/
     (unauth)/           # Login / Register — no sidebar, centered layout
-    (unth)/             # Protected routes — AppShell with Sidebar + BottomNav
+    (auth)/             # Protected routes — AppShell with Sidebar + BottomNav
   components/
     layout/             # AppShell, Sidebar, BottomNav
     ui/                 # shadcn/ui primitives + custom shared components
@@ -76,17 +76,17 @@ docs/
 7. Relative imports
 
 ```typescript
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { FormField } from "@/components/ui/form-field";
-import { createClient } from "@/lib/supabase/client";
-import { cn } from "@/lib/utils";
-import { useStudyStore } from "@/store/useStudyStore";
-import type { Flashcard } from "@/types";
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { FormField } from '@/components/ui/form-field';
+import { createClient } from '@/lib/supabase/client';
+import { cn } from '@/lib/utils';
+import { useStudyStore } from '@/store/useStudyStore';
+import type { Flashcard } from '@/types';
 ```
 
 ### Export Pattern
@@ -113,14 +113,14 @@ interface Flashcard {
 }
 
 // Unions / primitives
-type TLanguage = "zh" | "en";
+type TLanguage = 'zh' | 'en';
 type TRating = 1 | 2 | 3 | 4;
 
 // Extract from Zod schema
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 // Native HTML element props
-type InputProps = React.ComponentProps<"input">;
+type InputProps = React.ComponentProps<'input'>;
 ```
 
 **No `any` types.** Use proper TypeScript types always.
@@ -177,8 +177,8 @@ No `tailwind.config.ts`. All theme tokens defined in `src/app/globals.css` under
 Always use `cn()` from `@/lib/utils`:
 
 ```typescript
-cn("base", isActive && "active");
-cn("base", { active: isActive, disabled: isDisabled });
+cn('base', isActive && 'active');
+cn('base', { active: isActive, disabled: isDisabled });
 cn(variants({ variant, size }), className);
 ```
 
@@ -197,11 +197,11 @@ shadcn components use `data-slot` and `data-*` for styling hooks:
 
 ```typescript
 // Client component
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from '@/lib/supabase/client';
 const supabase = createClient();
 
 // Server Component / Server Action
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from '@/lib/supabase/server';
 const supabase = await createClient();
 ```
 
@@ -214,8 +214,8 @@ const supabase = await createClient();
 ## Zustand Store Patterns
 
 ```typescript
-"use client";
-import { useStudyStore } from "@/store/useStudyStore";
+'use client';
+import { useStudyStore } from '@/store/useStudyStore';
 
 const { sessionCards, currentIndex, isFlipped, flipCard, nextCard } =
   useStudyStore();
@@ -230,8 +230,8 @@ const { sessionCards, currentIndex, isFlipped, flipCard, nextCard } =
 
 ```typescript
 const schema = z.object({
-  email: z.string().email("Email không hợp lệ."),
-  password: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự."),
+  email: z.string().email('Email không hợp lệ.'),
+  password: z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự.'),
 });
 type FormValues = z.infer<typeof schema>;
 
@@ -282,6 +282,29 @@ const PasswordInput = forwardRef<HTMLInputElement, Props>((props, ref) => { ... 
 
 ---
 
+## shadcn/ui Component Priority
+
+Always prefer shadcn/ui components over raw HTML elements with Tailwind classes. Before writing a custom element, check if a shadcn component exists:
+
+| Instead of...                   | Use shadcn...                       |
+| ------------------------------- | ----------------------------------- |
+| `<select>` + Tailwind classes   | `<Select>` + `<SelectTrigger>` etc. |
+| `<input>` + Tailwind classes    | `<Input>`                           |
+| `<button>` + Tailwind classes   | `<Button variant="...">` (in forms) |
+| `<textarea>` + Tailwind classes | `<Textarea>`                        |
+| Custom dropdown                 | `<DropdownMenu>` + items            |
+| Custom modal                    | `<Dialog>` + `<DialogContent>` etc. |
+| Custom tabs                     | `<Tabs>` + `<TabsList>` etc.        |
+| Custom progress bar             | `<Progress>`                        |
+| Custom badge                    | `<Badge>`                           |
+| Custom scroll area              | `<ScrollArea>`                      |
+
+**Installing a new shadcn component:** `npx shadcn@latest add <component-name>`
+
+Raw HTML elements with Tailwind are acceptable **only** for layout/structural elements (`div`, `section`, `nav`, `ul/li`) or when no shadcn equivalent exists (e.g., filter chips, custom cards).
+
+---
+
 ## Don't Do
 
 - ❌ Don't hardcode hex colors — use tokens (`bg-surface-page` not `bg-[#eff4ff]`)
@@ -294,8 +317,9 @@ const PasswordInput = forwardRef<HTMLInputElement, Props>((props, ref) => { ... 
 - ❌ Don't add `useMemo` / `useCallback` unless profiling shows a real bottleneck
 - ❌ Don't create API route handlers for mutations — use Server Actions
 - ❌ Don't skip TypeScript errors
-- ❌ Don't use raw `<input>` / `<button>` in forms — use shadcn `<Input>` / `<Button>`
+- ❌ Don't use raw `<input>` / `<button>` / `<select>` in forms — use shadcn equivalents
 - ❌ Don't remove `data-slot` attributes from shadcn components
+- ❌ Don't write a custom component with only Tailwind if a shadcn component already covers the use case
 
 ---
 

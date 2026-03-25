@@ -1,6 +1,6 @@
 function TodayGoalSkeleton() {
   return (
-    <div className="h-64 animate-pulse space-y-6 rounded-xl bg-white p-8">
+    <div className="h-87 animate-pulse space-y-6 rounded-xl bg-white p-8">
       <div className="h-3 w-24 rounded bg-slate-100" />
       <div className="h-7 w-40 rounded bg-slate-100" />
       <div className="h-3 w-56 rounded bg-slate-100" />

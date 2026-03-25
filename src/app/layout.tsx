@@ -1,5 +1,6 @@
 import { Inter, Noto_Sans_SC } from 'next/font/google';
 import NextTopLoader from 'nextjs-toploader';
+import { Toaster } from 'sonner';
 
 import './globals.css';
 import { cn } from '@/lib/utils';
@@ -36,6 +37,7 @@ export default function RootLayout({
       <body className="flex min-h-full flex-col" suppressHydrationWarning>
         <NextTopLoader color="#10b981" shadow={false} showSpinner={false} />
         {children}
+        <Toaster richColors position="bottom-right" />
       </body>
     </html>
   );

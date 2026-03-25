@@ -35,7 +35,7 @@ export function DeckGrid({ decks }: Props) {
           <p className="text-sm text-slate-400">
             Chưa có bộ thẻ nào.{' '}
             <Link
-              href="/cards/new"
+              href="/library"
               className="font-semibold text-emerald-600 hover:underline"
             >
               Tạo thẻ mới
