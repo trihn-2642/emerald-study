@@ -111,7 +111,8 @@ Grid: `lg:grid-cols-12` — col-span-8 (TodayGoal) + col-span-4 (Streak + Activi
 - **Tổng thẻ** (Layers, emerald) — tổng `card_count`
 - **Đến hạn hôm nay** (Clock, orange) — tổng `due_count`
 - **Thẻ mới** (Sparkles, violet) — `newCards` từ `getTodayStats`
-- **Đã thuộc** (BookCheck, blue) — trung bình `mastery_percent`
+- **Đã thuộc** (BookCheck, blue) — mastery % **có trọng số** theo số thẻ: `(Σ mastery_percent/100 × card_count) / totalCards × 100`
+  > ⚠️ Không dùng trung bình cộng đơn giản vì deck ít thẻ sẽ ảnh hưởng không cân xứng.
 
 ### `CountUp` (`src/components/ui/count-up.tsx`)
 
@@ -132,7 +133,9 @@ getUserStreak(userId)   → number  (chuỗi ngày liên tiếp)
 getRecentActivity(userId) → RecentActivity[]  (2 ngày gần nhất, nhóm theo deck)
 ```
 
-`getRecentActivity` groups flashcards reviewed in the last 2 days by deck, returns up to 5 items with relative time strings.
+> ⚠️ **Định nghĩa mastery nhất quán**: Tất cả 3 hàm (`getDueDecks`, `getAllDecks`, `getDeckById`) đều dùng `fsrs_data->>state = '2'` (FSRS Review state) để đếm "thẻ đã thuộc". **Không dùng** `stability >= 21` vì khác định nghĩa.
+
+> 💡 **Giải thích "Cần ôn > Đã thuộc"**: Đây là hành vi đúng của FSRS. "Đã thuộc" (state=2) nghĩa là thẻ đã tốt nghiệp sang giai đoạn Review với khoảng lặp dài (ngày/tuần), nhưng vẫn cần ôn định kỳ để duy trì trí nhớ. `due_count` = tất cả thẻ có `next_review <= now` ở mọi state (new + learning + review + relearning).
 
 ### `React.cache()` deduplication
 

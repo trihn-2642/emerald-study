@@ -25,7 +25,11 @@ export default async function DeckDetailPage({ params }: Props) {
   return (
     <div className="p-4 md:p-6">
       <DeckDetailHeader deck={deck} />
-      <FlashcardTable flashcards={flashcards} deckId={deckId} />
+      <FlashcardTable
+        flashcards={flashcards}
+        deckId={deckId}
+        language={deck.language}
+      />
     </div>
   );
 }

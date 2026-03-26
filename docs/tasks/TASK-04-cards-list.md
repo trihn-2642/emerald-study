@@ -47,7 +47,18 @@ Xây dựng trang Chi tiết Deck hiển thị danh sách tất cả flashcard t
 - **Nút "Học ngay (N)"**: link đến `/study/[deckId]`, chỉ hiện khi `due_count > 0`
 - **Nút "Xem thẻ"**: link đến `/study/[deckId]`, hiện khi `due_count === 0`
 - **DeleteDeckDialog**: xóa cascade, redirect về `/library`
-- **Data type**: nhận `DeckDetail` (extends `Deck` + thêm `new_count`)
+- **Data type**: nhận `DeckDetail` (extends `Deck` + thêm `new_count`, `mastered_count`, `learning_count`)
+
+> 💡 **Định nghĩa chuẩn FSRS state** (dùng nhất quán trên toàn app):
+> | state | Label UI | Màu badge | Ý nghĩa |
+> |-------|-------------|------------|------------------------------------------|
+> | 0 | Mới | Blue | Chưa học lần nào |
+> | 1 | Đang học | Orange | Đang trong giai đoạn học ngắn (phút/giờ) |
+> | 2 | Đã thuộc | Emerald | Đã tốt nghiệp, khoảng lặp dài (ngày/tuần)|
+> | 3 | Học lại | Red | Quên, đang học lại |
+>
+> `mastery_percent = state=2 cards / total × 100` — **Không dùng** `stability >= 21`.
+> `due_count = next_review <= now` — bao gồm tất cả state, kể cả state=2 đến hạn.
 
 ### `FlashcardTable`
 
@@ -61,8 +72,12 @@ const SORTS = [
 ];
 ```
 
-- **Columns**: Từ/Cụm từ | Phiên âm | Nghĩa tiếng Việt | Trạng thái | Ôn tiếp | Sửa
-- **Cột "Ôn tiếp"** dùng `dayjs`: Quá hạn (đỏ) / Hôm nay (cam) / Ngày mai (vàng) / X ngày (muted)
+- **Columns**: Từ/Cụm từ | Phiên âm | Nghĩa tiếng Việt | Tiếng Anh | Ví dụ | Trạng thái | Ôn tiếp | Thao tác
+- **Cột "Ôn tiếp"** dùng `dayjs`, so sánh `next_review` với ngày hiện tại:
+  - Quá hạn (diff < 0): `text-red-500` + label "Quá hạn"
+  - Hôm nay (diff = 0): `text-orange-500` + label "Hôm nay"
+  - Ngày mai (diff = 1): `text-amber-500` + label "Ngày mai"
+  - Tương lai (diff > 1): `text-slate-400` + label "X ngày"
 - **Cột "Sửa"**: icon `Pencil` → link `/library/[deckId]/cards/[cardId]/edit`
 - **Nút "+ Thêm thẻ"**: link `/library/[deckId]/cards/new`
 - **Search**: filter theo `front`, `pinyin`, `meaning_vn` — realtime client-side
@@ -73,11 +88,12 @@ const SORTS = [
 ### `MasteryBadge`
 
 ```typescript
+// Hiện tại trong src/components/library/MasteryBadge.tsx
 const STATE_MAP = {
-  0: { label: 'Mới', className: 'bg-slate-100 text-slate-600' },
-  1: { label: 'Đang học', className: 'bg-amber-100 text-amber-700' },
-  2: { label: 'Ôn tập', className: 'bg-blue-100  text-blue-700' },
-  3: { label: 'Học lại', className: 'bg-red-100   text-red-700' },
+  0: { label: 'Mới', className: 'bg-blue-500/10 text-blue-600' },
+  1: { label: 'Đang học', className: 'bg-orange-500/10 text-orange-600' },
+  2: { label: 'Đã thuộc', className: 'bg-emerald-500/10 text-emerald-600' },
+  3: { label: 'Học lại', className: 'bg-red-500/10 text-red-600' },
 };
 ```
 
@@ -102,7 +118,7 @@ const STATE_MAP = {
 
 ### Bảng thẻ (FlashcardTable)
 
-- [x] Hiển thị đủ columns: Từ, Phiên âm, Nghĩa TV, Trạng thái, Ôn tiếp, Sửa
+- [x] Hiển thị đủ columns: Từ, Phiên âm, Nghĩa TV, Tiếng Anh, Ví dụ, Trạng thái, Ôn tiếp, Thao tác
 - [x] `MasteryBadge` đúng màu theo FSRS state (0–3)
 - [x] Cột "Ôn tiếp" dùng `dayjs` với màu tương đối
 - [x] Tìm kiếm realtime theo `front`, `pinyin`, `meaning_vn`

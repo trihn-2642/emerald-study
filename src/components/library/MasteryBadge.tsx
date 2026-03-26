@@ -1,10 +1,10 @@
 import { cn } from '@/lib/utils';
 
 const STATE_MAP = {
-  0: { label: 'Mới', className: 'bg-slate-100 text-slate-600' },
-  1: { label: 'Đang học', className: 'bg-amber-100 text-amber-700' },
-  2: { label: 'Ôn tập', className: 'bg-blue-100 text-blue-700' },
-  3: { label: 'Học lại', className: 'bg-red-100 text-red-700' },
+  0: { label: 'Mới', className: 'bg-blue-500/10 text-blue-600' },
+  1: { label: 'Đang học', className: 'bg-orange-500/10 text-orange-600' },
+  2: { label: 'Đã thuộc', className: 'bg-emerald-500/10 text-emerald-600' },
+  3: { label: 'Học lại', className: 'bg-red-500/10 text-red-600' },
 } as const;
 
 type State = keyof typeof STATE_MAP;
@@ -18,7 +18,7 @@ function MasteryBadge({ state }: Props) {
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium',
+        'inline-flex items-center rounded-full px-3 py-1 text-[10px] font-bold tracking-tighter uppercase',
         config.className,
       )}
     >
