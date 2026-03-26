@@ -10,10 +10,16 @@ type Props = { userId: string };
 function computeStats(decks: Deck[]) {
   const totalCards = decks.reduce((sum, d) => sum + d.card_count, 0);
   const dueToday = decks.reduce((sum, d) => sum + d.due_count, 0);
+  // Weighted mastery: (sum of mastered cards) / total cards
   const masteryPercent =
-    decks.length > 0
+    totalCards > 0
       ? Math.round(
-          decks.reduce((sum, d) => sum + d.mastery_percent, 0) / decks.length,
+          (decks.reduce(
+            (sum, d) => sum + (d.mastery_percent / 100) * d.card_count,
+            0,
+          ) /
+            totalCards) *
+            100,
         )
       : 0;
   return { totalCards, dueToday, masteryPercent };

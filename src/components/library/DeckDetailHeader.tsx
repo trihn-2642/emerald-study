@@ -1,19 +1,9 @@
-import {
-  ArrowLeft,
-  BookOpen,
-  CheckCircle,
-  Clock,
-  Layers,
-  Sparkles,
-} from 'lucide-react';
+import { CalendarDays, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 
-import { DeleteDeckDialog } from '@/components/library/DeleteDeckDialog';
-import { Badge } from '@/components/ui/badge';
+import { AnimatedProgress } from '@/components/ui/animated-progress';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { LANGUAGE_LABELS } from '@/constants';
-import { cn } from '@/lib/utils';
+import { CountUp } from '@/components/ui/count-up';
 
 import type { DeckDetail } from '@/lib/data/library';
 
@@ -26,118 +16,130 @@ function DeckDetailHeader({ deck }: Props) {
     id,
     name,
     description,
-    language,
     card_count,
     due_count,
     mastery_percent,
+    mastered_count,
+    learning_count,
     new_count,
+    created_at,
   } = deck;
 
-  const langConfig = LANGUAGE_LABELS[language as keyof typeof LANGUAGE_LABELS];
+  const mastery = mastery_percent ?? 0;
 
-  const stats = [
-    {
-      icon: Layers,
-      label: 'Tổng thẻ',
-      value: card_count,
-      className: 'text-slate-600',
-      bgClass: 'bg-slate-100',
-    },
-    {
-      icon: Clock,
-      label: 'Cần ôn',
-      value: due_count,
-      className: 'text-orange-600',
-      bgClass: 'bg-orange-50',
-    },
-    {
-      icon: Sparkles,
-      label: 'Thẻ mới',
-      value: new_count,
-      className: 'text-blue-600',
-      bgClass: 'bg-blue-50',
-    },
-    {
-      icon: CheckCircle,
-      label: 'Thuộc lòng',
-      value: `${mastery_percent ?? 0}%`,
-      className: 'text-emerald-600',
-      bgClass: 'bg-emerald-50',
-    },
-  ];
+  const updatedDate = new Date(created_at).toLocaleDateString('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
 
   return (
-    <div className="mb-6">
-      {/* Back */}
-      <Button
-        variant="ghost"
-        size="sm"
-        asChild
-        className="text-on-muted hover:text-on-surface mb-4 -ml-2 gap-1.5"
-      >
-        <Link href="/library">
-          <ArrowLeft className="h-4 w-4" />
+    <div className="mb-10">
+      {/* Breadcrumb */}
+      <nav className="mb-6 flex items-center gap-2 text-xs font-medium text-slate-500">
+        <Link
+          href="/library"
+          className="transition-colors hover:text-emerald-600"
+        >
           Thư viện
         </Link>
-      </Button>
+        <ChevronRight className="h-3.5 w-3.5" />
+        <span className="text-on-surface font-semibold">{name}</span>
+      </nav>
 
-      {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-100">
-            <BookOpen className="h-5 w-5 text-emerald-600" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-on-surface text-xl font-bold">{name}</h1>
-              {langConfig && (
-                <Badge
-                  variant="outline"
-                  className={cn('text-xs font-medium', langConfig.className)}
-                >
-                  {langConfig.label}
-                </Badge>
-              )}
+      {/* Page Header */}
+      <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+        <div>
+          <h1 className="text-on-surface mb-2 text-3xl font-black tracking-tight">
+            Chi tiết bộ thẻ: {name}
+          </h1>
+          <div className="flex flex-wrap items-center gap-4">
+            <span className="bg-surface-input rounded-full px-3 py-1 text-[11px] font-bold tracking-widest text-emerald-700 uppercase">
+              {card_count} THẺ
+            </span>
+            <div className="flex items-center gap-1.5 text-slate-500">
+              <CalendarDays className="h-4 w-4" />
+              <span className="text-xs">Cập nhật lần cuối: {updatedDate}</span>
             </div>
-            {description && (
-              <p className="text-on-muted mt-0.5 text-sm">{description}</p>
-            )}
           </div>
+          {description && (
+            <p className="text-on-muted mt-2 text-sm">{description}</p>
+          )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-3">
           {due_count > 0 && (
-            <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
-              <Link href={`/study/${id}`}>Học ngay ({due_count})</Link>
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+            >
+              <Link href={`/study/${id}`}>
+                Học ngay ({due_count} thẻ cần ôn)
+              </Link>
             </Button>
           )}
-          <DeleteDeckDialog deckId={id} deckName={name} />
+          <Button
+            asChild
+            size="sm"
+            className="gap-2 bg-emerald-600 font-bold shadow-lg shadow-emerald-900/10 hover:bg-emerald-50! hover:text-emerald-700"
+          >
+            <Link href={`/library/${id}/cards/new`}>+ Thêm thẻ mới</Link>
+          </Button>
         </div>
       </div>
 
-      {/* Stats row */}
-      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {stats.map((stat) => (
-          <Card key={stat.label} className="border-0 shadow-sm">
-            <CardContent className="flex items-center gap-3 p-4">
-              <div
-                className={cn(
-                  'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg',
-                  stat.bgClass,
-                )}
-              >
-                <stat.icon className={cn('h-4 w-4', stat.className)} />
-              </div>
-              <div>
-                <p className="text-on-surface text-lg font-bold">
-                  {stat.value}
-                </p>
-                <p className="text-on-muted text-xs">{stat.label}</p>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+          <p className="mb-1 text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+            Đã thuộc
+          </p>
+          <p className="text-2xl font-black text-emerald-600">
+            <CountUp to={mastered_count} />
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+          <p className="mb-1 text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+            Đang học
+          </p>
+          <p className="text-2xl font-black text-orange-500">
+            <CountUp to={learning_count} />
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+          <p className="mb-1 text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+            Mới
+          </p>
+          <p className="text-2xl font-black text-blue-500">
+            <CountUp to={new_count} />
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+          <p className="mb-1 text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+            Tỉ lệ hoàn thành
+          </p>
+          <div className="flex items-end justify-between gap-2">
+            <p className="text-on-surface text-2xl font-black">
+              <CountUp to={mastery} suffix="%" />
+            </p>
+            <span className="mb-0.5 text-xs font-semibold text-slate-400">
+              {mastered_count}/{card_count}
+            </span>
+          </div>
+          <AnimatedProgress
+            value={mastery}
+            className="mt-3 h-2 bg-emerald-100"
+            indicatorClassName="rounded-full bg-emerald-500"
+          />
+        </div>
       </div>
+
+      {/* Study CTA */}
     </div>
   );
 }

@@ -74,7 +74,7 @@ export async function getDueDecks(userId: string): Promise<Deck[]> {
         .from('flashcards')
         .select('id', { count: 'exact', head: true })
         .eq('deck_id', deck.id)
-        .gte('fsrs_data->>stability', '21');
+        .eq('fsrs_data->>state', '2');
 
       const total = cardCount ?? 0;
       const mastery =

@@ -10,6 +10,8 @@ import type { Deck, Flashcard } from '@/types';
 
 export interface DeckDetail extends Deck {
   new_count: number;
+  mastered_count: number;
+  learning_count: number;
 }
 
 export const getAllDecks = cache(async function getAllDecks(
@@ -43,7 +45,7 @@ export const getAllDecks = cache(async function getAllDecks(
         .from('flashcards')
         .select('id', { count: 'exact', head: true })
         .eq('deck_id', deck.id)
-        .gte('fsrs_data->>stability', '21');
+        .eq('fsrs_data->>state', '2');
 
       const total = cardCount ?? 0;
       const mastery =
@@ -81,6 +83,7 @@ export async function getDeckById(
     { count: cardCount },
     { count: dueCount },
     { count: masteredCount },
+    { count: learningCount },
     { count: newCount },
   ] = await Promise.all([
     supabase
@@ -92,11 +95,18 @@ export async function getDeckById(
       .select('id', { count: 'exact', head: true })
       .eq('deck_id', deckId)
       .lte('next_review', now),
+    // state=2 (Review) — matches "Đã thuộc" badge in table
     supabase
       .from('flashcards')
       .select('id', { count: 'exact', head: true })
       .eq('deck_id', deckId)
-      .gte('fsrs_data->>stability', '21'),
+      .eq('fsrs_data->>state', '2'),
+    // state=1 (Learning) — matches "Đang học" badge in table
+    supabase
+      .from('flashcards')
+      .select('id', { count: 'exact', head: true })
+      .eq('deck_id', deckId)
+      .eq('fsrs_data->>state', '1'),
     supabase
       .from('flashcards')
       .select('id', { count: 'exact', head: true })
@@ -105,14 +115,16 @@ export async function getDeckById(
   ]);
 
   const total = cardCount ?? 0;
-  const mastery =
-    total > 0 ? Math.round(((masteredCount ?? 0) / total) * 100) : 0;
+  const mastered = masteredCount ?? 0;
+  const mastery = total > 0 ? Math.round((mastered / total) * 100) : 0;
 
   return {
     ...deck,
     card_count: total,
     due_count: dueCount ?? 0,
     mastery_percent: mastery,
+    mastered_count: mastered,
+    learning_count: learningCount ?? 0,
     new_count: newCount ?? 0,
   } as DeckDetail;
 }
