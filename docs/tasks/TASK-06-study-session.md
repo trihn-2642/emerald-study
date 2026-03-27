@@ -1,4 +1,10 @@
-# Task 04: Study Session – Phiên học tập
+# Task 06: Study Session – Phiên học tập
+
+## 📌 Trạng thái: CHƯA TRIỂN KHAI
+
+Store (`useStudyStore`) và route `/study/[deckId]` chưa được tạo. Các nút "Học ngay" trên Dashboard và Deck Detail hiện link đến `/study/[deckId]` nhưng trang này chưa tồn tại.
+
+---
 
 ## 🎯 Mục tiêu
 

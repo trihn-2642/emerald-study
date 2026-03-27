@@ -151,7 +151,7 @@ function EditDeckDialog({ deck, open, onOpenChange }: Props) {
                         type="button"
                         onClick={() => field.onChange(opt.value)}
                         className={cn(
-                          'flex flex-col items-start rounded-xl border px-4 py-3 text-left text-sm transition-colors',
+                          'flex cursor-pointer flex-col items-start rounded-xl border px-4 py-3 text-left text-sm transition-colors',
                           field.value === opt.value
                             ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
                             : 'border-input text-on-muted hover:border-emerald-300',

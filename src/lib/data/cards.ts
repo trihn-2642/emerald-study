@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { createEmptyCard } from 'ts-fsrs';
 
 import { createClient, getUser } from '@/lib/supabase/server';
-import { cardSchema } from '@/lib/validations/card';
+import { createCardSchema } from '@/lib/validations/card';
 
 import type { CardFormData } from '@/lib/validations/card';
 import type { Flashcard } from '@/types';
@@ -30,22 +30,39 @@ export async function getCardById(
   return data ?? null;
 }
 
+const DIFFICULTY_MAP: Record<string, number> = {
+  easy: 3.0,
+  medium: 5.3,
+  hard: 7.5,
+};
+
 export async function createCard(
   formData: CardFormData,
+  difficulty: 'easy' | 'medium' | 'hard' = 'medium',
 ): Promise<ActionResult> {
   const user = await getUser();
   if (!user) return { error: 'Không có quyền truy cập' };
 
-  const parsed = cardSchema.safeParse(formData);
+  const parsed = createCardSchema(formData.language ?? 'zh').safeParse(
+    formData,
+  );
   if (!parsed.success) return { error: 'Dữ liệu không hợp lệ' };
 
-  const { deck_id, language, front, pinyin, meaning_vn, meaning_en, examples } =
-    parsed.data;
+  const {
+    deck_id,
+    language,
+    front,
+    pinyin,
+    meaning_vn,
+    meaning_en,
+    examples,
+    word_type,
+  } = parsed.data;
 
   const empty = createEmptyCard();
   const fsrs_data = {
     stability: empty.stability,
-    difficulty: empty.difficulty,
+    difficulty: DIFFICULTY_MAP[difficulty] ?? empty.difficulty,
     elapsed_days: empty.elapsed_days,
     scheduled_days: empty.scheduled_days,
     reps: empty.reps,
@@ -65,6 +82,7 @@ export async function createCard(
       pinyin: pinyin ?? '',
       meaning_vn,
       meaning_en: meaning_en ?? '',
+      word_type: word_type ?? null,
       examples: examples ?? [],
       fsrs_data,
       next_review: new Date().toISOString(),
@@ -85,11 +103,21 @@ export async function updateCard(
   const user = await getUser();
   if (!user) return { error: 'Không có quyền truy cập' };
 
-  const parsed = cardSchema.safeParse(formData);
+  const parsed = createCardSchema(formData.language ?? 'zh').safeParse(
+    formData,
+  );
   if (!parsed.success) return { error: 'Dữ liệu không hợp lệ' };
 
-  const { deck_id, language, front, pinyin, meaning_vn, meaning_en, examples } =
-    parsed.data;
+  const {
+    deck_id,
+    language,
+    front,
+    pinyin,
+    meaning_vn,
+    meaning_en,
+    examples,
+    word_type,
+  } = parsed.data;
 
   const supabase = await createClient();
   const { error } = await supabase
@@ -100,6 +128,7 @@ export async function updateCard(
       pinyin: pinyin ?? '',
       meaning_vn,
       meaning_en: meaning_en ?? '',
+      word_type: word_type ?? null,
       examples: examples ?? [],
     })
     .eq('id', id)

@@ -4,6 +4,13 @@
 
 Xây dựng form thêm thẻ mới và chỉnh sửa thẻ hiện có, bao gồm: preview thẻ realtime, quản lý ví dụ động, tích hợp Toast notification, và xử lý lỗi form đầy đủ.
 
+> **Ghi chú DB migration cần thiết:**
+> Thêm cột `word_type text` vào bảng `flashcards` trong Supabase:
+>
+> ```sql
+> ALTER TABLE flashcards ADD COLUMN word_type text;
+> ```
+
 ---
 
 ## 📁 Các file cần tạo / sửa
@@ -63,38 +70,57 @@ Xây dựng form thêm thẻ mới và chỉnh sửa thẻ hiện có, bao gồm
 ```typescript
 import { z } from 'zod';
 
-export const exampleSchema = z.object({
-  cn: z.string().min(1, 'Không được để trống'),
-  py: z.string().min(1, 'Không được để trống'),
-  vn: z.string().min(1, 'Không được để trống'),
+// Dynamic per-language example schemas
+const exampleZhSchema = z.object({
+  cn: z.string().min(1, 'Không được để trống'), // required for ZH
+  py: z.string(),
+  vn: z.string(),
   en: z.string(),
 });
 
-export const cardSchema = z
-  .object({
-    deck_id: z.string().uuid('Vui lòng chọn bộ thẻ'),
-    language: z.enum(['zh', 'en']),
-    front: z.string().min(1, 'Không được để trống').max(50, 'Tối đa 50 ký tự'),
-    pinyin: z.string(),
-    meaning_vn: z
-      .string()
-      .min(1, 'Không được để trống')
-      .max(200, 'Tối đa 200 ký tự'),
-    meaning_en: z.string().max(200, 'Tối đa 200 ký tự').optional(),
-    examples: z.array(exampleSchema).max(5, 'Tối đa 5 ví dụ'),
-  })
-  .refine((data) => data.language !== 'zh' || data.pinyin.length > 0, {
-    message: 'Pinyin không được để trống khi ngôn ngữ là Tiếng Trung',
-    path: ['pinyin'],
-  });
+const exampleEnSchema = z.object({
+  cn: z.string(),
+  py: z.string(),
+  vn: z.string(),
+  en: z.string().min(1, 'Không được để trống'), // required for EN
+});
+
+// Single factory function — returns schema appropriate for the language
+export function createCardSchema(language: 'zh' | 'en') {
+  return z
+    .object({
+      deck_id: z.string().uuid('Vui lòng chọn bộ thẻ'),
+      language: z.enum(['zh', 'en']),
+      word_type: z.string().optional(),
+      front: z
+        .string()
+        .min(1, 'Không được để trống')
+        .max(50, 'Tối đa 50 ký tự'),
+      pinyin: z.string(),
+      meaning_vn: z
+        .string()
+        .min(1, 'Không được để trống')
+        .max(200, 'Tối đa 200 ký tự'),
+      meaning_en: z.string().max(200, 'Tối đa 200 ký tự').optional(),
+      examples: z
+        .array(language === 'zh' ? exampleZhSchema : exampleEnSchema)
+        .max(5, 'Tối đa 5 ví dụ'),
+    })
+    .refine((data) => language !== 'zh' || data.pinyin.length > 0, {
+      message: 'Pinyin không được để trống khi ngôn ngữ là Tiếng Trung',
+      path: ['pinyin'],
+    });
+}
+
+// Static export kept for TypeScript type inference only
+export const cardSchema = createCardSchema('zh');
+export type CardFormData = z.infer<typeof cardSchema>;
 
 export const deckSchema = z.object({
   name: z.string().min(1, 'Tên bộ thẻ không được để trống').max(100),
   description: z.string().max(500).optional(),
   language: z.enum(['zh', 'en'], { message: 'Vui lòng chọn ngôn ngữ' }),
 });
-
-export type CardFormData = z.infer<typeof cardSchema>;
 export type DeckFormData = z.infer<typeof deckSchema>;
 ```
 
@@ -104,42 +130,54 @@ export type DeckFormData = z.infer<typeof deckSchema>;
 interface CardFormData {
   deck_id: string;
   language: 'zh' | 'en';
+  word_type?: string; // optional: noun/verb/adj/adv/exclamation
   front: string; // required
-  pinyin: string; // required if language === 'zh'
+  pinyin: string; // required if language === 'zh'; for EN stores Chinese equivalent
   meaning_vn: string; // required
-  meaning_en: string; // optional
+  meaning_en?: string; // optional
   examples: Example[]; // optional, max 5
 }
 ```
 
-### Validation Rules
+### `ExampleItem` – Layout theo ngôn ngữ
 
-```typescript
-// front: required, min 1 char, max 50 chars
-// pinyin: required nếu language === 'zh'
-// meaning_vn: required, min 1 char, max 200 chars
-// meaning_en: optional, max 200 chars
-// examples: mỗi example cần ít nhất cn + vn, hoặc en + vn
-// deck_id: required
-```
+- **ZH** (2x2 grid):
+  - Row 1: Tiếng Trung (required) | Phiên âm (required)
+  - Row 2: Tiếng Việt (required) | Tiếng Anh (tùy chọn)
+- **EN** (full-width + 2-col):
+  - Row 1: Tiếng Anh full-width (required)
+  - Row 2: Tiếng Việt (required) | Tiếng Trung (tùy chọn)
+  - Field `py` ẩn (không hiển thị cho EN examples)
 
 ### Server Actions (`src/lib/data/cards.ts`)
 
 ```typescript
 'use server';
 
-export async function createCard(formData: CardFormData): Promise<ActionResult>;
+// createCard nhận thêm param `difficulty` để khởi tạo FSRS difficulty ban đầu
+export async function createCard(
+  formData: CardFormData,
+  difficulty: 'easy' | 'medium' | 'hard' = 'medium',
+): Promise<ActionResult>;
+
 export async function updateCard(
   id: string,
   formData: CardFormData,
 ): Promise<ActionResult>;
-export async function deleteCard(id: string): Promise<ActionResult>;
+
+export async function deleteCard(
+  id: string,
+  deckId: string, // cần dùng để revalidatePath
+): Promise<ActionResult>;
 
 interface ActionResult {
-  success: boolean;
+  success?: boolean;
   error?: string;
   cardId?: string;
 }
+
+// DIFFICULTY_MAP maps difficulty selector → FSRS initial difficulty value
+const DIFFICULTY_MAP = { easy: 3.0, medium: 5.3, hard: 7.5 };
 ```
 
 ### Toast Notifications (Shadcn Sonner)
@@ -176,51 +214,65 @@ interface ActionResult {
 - [x] `LanguageToggle` chuyển đổi giữa 中文 và EN
 - [x] Khi chọn EN: ẩn field Pinyin, label "Mặt trước" đổi thành "Từ vựng"
 - [x] `DeckSelector` hiển thị tên deck hiện tại (locked theo URL, không dropdown)
-- [ ] `DeckSelector` có option "＋ Tạo bộ thẻ mới" mở dialog inline
 - [x] Tất cả required fields có validation error message bằng tiếng Việt
 - [x] Form reset sau khi lưu thành công (chế độ Add)
 - [x] Form giữ nguyên data khi có lỗi server
+- [x] **Word type chip**: chọn loại từ (Danh từ / Động từ / Tính từ / Trạng từ / Thán từ) — color-coded, toggle on/off
+- [x] **Độ khó ban đầu**: selector Dễ/Trung bình/Khó (chỉ hiển thị khi tạo mới, edit mode dùng FSRS tự động)
+- [x] `mode: 'all'`, `reValidateMode: 'onChange'` để validate realtime
+- [x] `createCardSchema(language)` dynamic resolver theo ngôn ngữ hiện tại
 
 ### CardPreview
 
 - [x] Preview cập nhật realtime khi user gõ vào form
 - [x] Preview hiển thị đúng layout mặt trước và mặt sau
-- [x] Preview ẩn trên mobile
-- [x] Preview có thể click để flip
+- [x] Preview ẩn trên mobile, hiển thị từ `lg` trở lên
+- [x] Preview có thể click để flip (3D CSS `rotateY`, không dùng Framer Motion)
+- [x] Icon 🔊 trên mặt trước đọc từ vựng bằng Web Speech API (không lật thẻ)
+- [x] Icon 🔊 trên mỗi ví dụ (mặt sau) đọc câu ví dụ bằng Web Speech API (không lật thẻ)
 
 ### ExampleList
 
-- [x] Thêm example mới với 4 fields trống
-- [ ] Xóa example (có confirm nếu đã có dữ liệu)
-- [x] Validation: `vn` là required
+- [x] Thêm example mới với các fields trống
+- [x] Xóa example không cần confirm
+- [x] ZH: `cn`, `py`, `vn` required; `en` optional
+- [x] EN: `en`, `vn` required; `cn` optional; field `py` ẩn
 - [x] Giới hạn tối đa 5 examples, disable nút thêm khi đủ
 
 ### Server Actions
 
 - [x] `createCard` insert vào Supabase, khởi tạo `fsrs_data` mặc định (state=0)
 - [x] `createCard` set `next_review = now()` (due ngay)
+- [x] `createCard` nhận param `difficulty` để điều chỉnh `fsrs_data.difficulty` ban đầu
 - [x] `updateCard` chỉ update content fields, không reset `fsrs_data`
-- [x] `deleteCard` xóa card khỏi Supabase
+- [x] `deleteCard` nhận `deckId` để `revalidatePath` đúng
 - [x] Xử lý lỗi Supabase và trả về `ActionResult` phù hợp
 
 ### Toast & Error Handling
 
 - [x] Toast "thành công" xuất hiện sau khi lưu thẻ
 - [x] Toast "thất bại" xuất hiện khi có lỗi server
-- [ ] Toast tự động dismiss sau 3 giây
-- [ ] Inline error dưới mỗi field khi validation fail
+- [x] Inline error dưới field khi validation fail (RHF `mode: 'all'`)
+- [x] Toast xóa thẻ "🗑️ Đã xóa thẻ." (từ FlashcardTable) và toast xóa từ edit page
 
 ### Edit Card
 
 - [x] Trang edit load đúng data của card hiện tại
 - [x] Edit không thể đổi `deck_id` (locked theo URL context)
-- [x] Nút "Xóa thẻ" có confirmation (`confirm()`) trước khi xóa
-- [x] Sau khi xóa: redirect về `/library/[deckId]`
+- [x] Nút "Xóa thẻ" có confirmation dialog trước khi xóa
+- [x] Sau khi xóa: redirect về `/library/[deckId]/cards`
+- [x] Ḷ chế độ edit: ẩn difficulty selector, hiển thị thông báo FSRS tự động điều chỉnh
 
 ### General
 
-- [ ] Form submit khi nhấn Enter (nếu không có multiline field đang focus)
 - [x] Nút "Huỷ" navigate back
 - [x] Breadcrumb: "← Tên Deck" back link
 - [x] Không có lỗi TypeScript
 - [x] Responsive trên mobile: form full-width, preview ẩn
+
+---
+
+## ⚠️ Pending / To-do
+
+- [ ] `word_type` chưa được lưu lên DB (cần chạy migration `ALTER TABLE flashcards ADD COLUMN word_type text` và thêm vào insert/update trong `cards.ts`)
+- [ ] `DeckSelector` chưa có option "＋ Tạo bộ thẻ mới" inline

@@ -56,9 +56,10 @@
 - `deck_id`: uuid (FK → decks)
 - `user_id`: uuid (FK → auth.users)
 - `front`: string (Chữ Hán / Từ vựng Anh)
-- `pinyin`: string (chỉ dùng khi `language = 'zh'`, để trống nếu không có)
+- `pinyin`: string (chỉ dùng khi `language = 'zh'`, để trống nếu không có; đối với EN card lưu chữ Trung tương ứng)
 - `meaning_vn`: string (Nghĩa tiếng Việt)
 - `meaning_en`: string (Nghĩa tiếng Anh, optional)
+- `word_type?`: string (optional — loại từ: noun/verb/adj/adv/exclamation)
 - `language`: `'zh' | 'en'`
 - `examples`: `Array<{ cn: string, py: string, vn: string, en: string }>`
 - `fsrs_data`: `FsrsData` (xem bên dưới)
@@ -156,9 +157,18 @@
 
 - **Add** (`/library/[deckId]/cards/new`): Form tạo thẻ mới với preview realtime bên phải, deck pre-selected theo URL.
 - **Edit** (`/library/[deckId]/cards/[cardId]/edit`): Load card data, cho phép chỉnh sửa content fields (không reset `fsrs_data`).
-- **Delete**: Confirmation dialog trong trang Edit, redirect về `/library/[deckId]` sau khi xóa.
-- Form validation bằng `zod` + `react-hook-form`, lỗi hiển thị inline bằng tiếng Việt.
-- Examples: tối đa 5, dùng `useFieldArray` từ `react-hook-form`.
+- **Delete**: Confirmation dialog trong trang Edit, redirect về `/library/[deckId]/cards` sau khi xóa.
+- Form validation bằng `zod` + `react-hook-form` (`mode: 'all'`, `reValidateMode: 'onChange'`), lỗi hiển thị inline bằng tiếng Việt.
+- Examples: tối đa 5, dùng `useFieldArray`.
+  - ZH examples: `cn` required, `py`/`vn`/`en` optional.
+  - EN examples: `en` required, `vn`/`cn` optional, `py` hidden.
+- **Word type chip**: chọn loại từ (Danh từ / Động từ / Tính từ / Trạng từ / Thán từ) — optional, color-coded.
+- **Độ khó ban đầu**: selector 3 bậc (Dễ / Trung bình / Khó) khi tạo thẻ mới. Ở chế độ edit, FSRS tự động điều chỉnh (không hiện selector).
+- **Validation schema**: `createCardSchema(language)` — dynamic schema theo ngôn ngữ (zh/en). ZH: `pinyin` required; EN: `pinyin` optional.
+- **Preview**: 3D flip card inline CSS, không dùng Framer Motion (dùng `transform: rotateY`).
+  - Front: gradient xanh lá, chữ to + pinyin + meanings.
+  - Back: nền trắng, danh sách examples với TTS (Web Speech API).
+- **TTS** (Text-to-Speech): icon 🔊 trên mặt trước và trên mỗi example. Gọi `window.speechSynthesis.speak()`.
 
 ---
 
@@ -193,6 +203,7 @@ create table flashcards (
   pinyin       text default '',
   meaning_vn   text not null,
   meaning_en   text default '',
+  word_type    text,
   examples     jsonb default '[]'::jsonb,
   fsrs_data    jsonb not null default '{
     "stability": 0, "difficulty": 0, "elapsed_days": 0,
@@ -202,6 +213,9 @@ create table flashcards (
   next_review  timestamptz default now(),
   created_at   timestamptz default now()
 );
+
+-- Migration (nếu table đã tồn tại):
+-- ALTER TABLE flashcards ADD COLUMN word_type text;
 
 alter table flashcards enable row level security;
 create policy "Users manage own flashcards"
@@ -213,16 +227,16 @@ create policy "Users manage own flashcards"
 ## 6. Route Map
 
 ```
-/                       → redirect → /dashboard (nếu đã login) hoặc /login
-/login                  → Trang đăng nhập
-/register               → Trang đăng ký
-/(auth)                  → Route group bảo vệ (yêu cầu auth)
-  /dashboard            → Bảng điều khiển
-  /library              → Thư viện tất cả decks
-  /library/[deckId]/cards     → Chi tiết 1 deck + danh sách thẻ
-  /study/[deckId]       → Phiên học tập
-  /library/[deckId]/cards/new            → Thêm thẻ mới
-  /library/[deckId]/cards/[cardId]/edit  → Chỉnh sửa thẻ
+/                                               → redirect → /dashboard (nếu đã login) hoặc /login
+/login                                          → Trang đăng nhập
+/register                                       → Trang đăng ký
+/(auth)                                         → Route group bảo vệ (yêu cầu auth)
+  /dashboard                                    → Bảng điều khiển
+  /library                                      → Thư viện tất cả decks
+  /library/[deckId]/cards                       → Chi tiết 1 deck + danh sách thẻ (bảng)
+  /library/[deckId]/cards/new                   → Thêm thẻ mới
+  /library/[deckId]/cards/[cardId]/edit         → Chỉnh sửa thẻ
+  /study/[deckId]                               → Phiên học tập (chưa triển khai)
 ```
 
 ---
