@@ -173,6 +173,46 @@ Chỉ dùng thêm Tailwind Emerald scale theo nhu cầu: `emerald-500`, `emerald
 - [x] `PasswordInput` (`src/components/ui/password-input.tsx`) — React 19 (không dùng `forwardRef`), dùng shadcn `Input` nội tại
 - [x] Auth pages dùng shadcn `Card` + `CardContent`, `Input`, `Button` thay cho raw HTML elements
 
+### Auth Pages
+
+#### `/login` (`src/app/(unauth)/login/page.tsx`)
+
+- [x] Client Component, `useForm` + `zodResolver(loginSchema)`, `mode: 'all'`
+- [x] Form card: shadcn `<Card>` + `<CardContent>` với `ring-0 shadow-[0_20px_40px_rgba(11,28,48,0.05)] bg-white`
+- [x] Tiêu đề: "Chào mừng trở lại" (h2) + "Đăng nhập để tiếp tục hành trình học tập của bạn." (p)
+- [x] Field Email: `<Input>` wrapped in `<FormField>`, label "Email"
+- [x] Field Mật khẩu: `<PasswordInput>` với show/hide toggle, `<FormField>` có slot `labelRight` chứa link "Quên mật khẩu?" (`href="#"`)
+- [x] Error banner `bg-red-50 border border-red-100 text-red-600 rounded-xl` — hiển thị khi auth thất bại: "Email hoặc mật khẩu không đúng."
+- [x] Submit button: gradient `bg-linear-to-br from-brand-deep to-emerald-500`, disabled + `<Spinner>` khi `isSubmitting`
+- [x] Submit action: `supabase.auth.signInWithPassword` → `router.replace('/dashboard')`
+- [x] Footer link: "Chưa có tài khoản? **Đăng ký ngay**" → `/register`
+
+#### `/register` (`src/app/(unauth)/register/page.tsx`)
+
+- [x] Client Component, `useForm` + `zodResolver(registerSchema)`, `mode: 'all'`
+- [x] Form card: cùng style với `/login`
+- [x] Tiêu đề: "Tạo tài khoản mới" (h2) + "Bắt đầu hành trình học tập với Emerald Study." (p)
+- [x] Field Họ và tên: `<Input>`, label "Họ và tên"
+- [x] Field Email: `<Input>`, label "Email"
+- [x] Field Mật khẩu: `<PasswordInput>`, label "Mật khẩu"
+- [x] Field Xác nhận mật khẩu: `<PasswordInput>`, label "Xác nhận mật khẩu" — `.refine` match check trong schema
+- [x] Checkbox "Tôi đồng ý với **Điều khoản dịch vụ** và **Chính sách bảo mật**" — `.refine` must be `true`, error hiển thị bên dưới nếu chưa tick
+- [x] Error banner cùng style với `/login`
+- [x] Submit action: `supabase.auth.signUp({ email, password, options: { data: { full_name: fullName } } })` → `router.push('/dashboard')`
+- [x] Footer link: "Đã có tài khoản? **Đăng nhập**" → `/login`
+
+#### Validation Schemas (`src/lib/auth-schemas.ts`)
+
+- [x] `loginSchema`: email (regex từ `REGEXS.EMAIL`), password `min(6)`
+- [x] `registerSchema`: fullName, email, password `min(6)`, confirmPassword (`.refine` match), agreeToTerms (`.refine` true)
+- [x] Types exported: `LoginFormValues`, `RegisterFormValues` (`z.infer<typeof ...>`)
+
+#### (unauth) Layout (`src/app/(unauth)/layout.tsx`)
+
+- [x] Fixed header: `bg-white/80 backdrop-blur-xl`, Leaf icon + "Emerald Study" brand `text-emerald-700`
+- [x] Content: `flex w-full max-w-110 flex-col gap-8` — narrow centered stack
+- [x] Footer: copyright © 2026 + 3 links (Điều khoản / Bảo mật / Liên hệ), `href="#"` placeholder
+
 ### Visual
 
 - [x] CSS variables emerald được khai báo trong `globals.css`

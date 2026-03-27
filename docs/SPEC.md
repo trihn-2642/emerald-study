@@ -92,12 +92,51 @@
 - **Đăng ký / Đăng nhập**: Email + Password qua Supabase Auth.
 - **Provider**: Chỉ Email/Password (Google OAuth có thể thêm sau).
 - **Routes bảo vệ**: Tất cả routes dưới `/(auth)` đều yêu cầu đăng nhập.
-- **Middleware**: `middleware.ts` ở root dùng `@supabase/ssr` để refresh session, redirect về `/login` nếu chưa auth.
-- **Pages**:
-  - `/login` — Form đăng nhập, link sang đăng ký.
-  - `/register` — Form đăng ký, tự động đăng nhập sau khi tạo tài khoản.
-  - Redirect sau login: `→ /dashboard`.
-  - Redirect sau logout: `→ /login`.
+- **Middleware**: `src/proxy.ts` (chạy qua `middleware.ts`) dùng `@supabase/ssr` để refresh session, redirect về `/login` nếu chưa auth.
+- **Validation schemas** (`src/lib/auth-schemas.ts`):
+  - `loginSchema`: email (regex validate), password `min(6)`.
+  - `registerSchema`: fullName, email, password `min(6)`, confirmPassword (`.refine` match check), agreeToTerms (`.refine` must be `true`).
+
+#### Layout (unauth) — `src/app/(unauth)/layout.tsx`
+
+- **Header** (fixed, frosted glass): `bg-white/80 backdrop-blur-xl` — icon Leaf + "Emerald Study" `text-emerald-700`.
+- **Content**: `flex w-full max-w-110 flex-col gap-8` — narrow centered card stack.
+- **Footer**: copyright © 2026 + 3 links (Điều khoản / Bảo mật / Liên hệ), `href="#"` placeholder.
+
+#### `/login` — `src/app/(unauth)/login/page.tsx`
+
+- **Client Component**, `useForm` + `zodResolver(loginSchema)`, `mode: 'all'`.
+- **Form card**: shadcn `<Card>` + `<CardContent>` với `ring-0 shadow-[0_20px_40px_rgba(11,28,48,0.05)] bg-white`.
+- **Tiêu đề**: "Chào mừng trở lại" (h2) + "Đăng nhập để tiếp tục hành trình học tập của bạn." (p).
+- **Fields**:
+  - Email — `<Input>` wrapped in `<FormField>`, label "Email".
+  - Mật khẩu — `<PasswordInput>` với show/hide toggle, `<FormField>` có slot `labelRight` chứa link "Quên mật khẩu?" (`href="#"`).
+- **Error banner**: `bg-red-50 border border-red-100 text-red-600 rounded-xl` — hiển thị khi `authError !== null`, text: "Email hoặc mật khẩu không đúng."
+- **Submit button**: gradient `bg-linear-to-br from-brand-deep to-emerald-500`, disabled + `<Spinner>` khi `isSubmitting`.
+- **Submit action**: `supabase.auth.signInWithPassword({ email, password })` → `router.replace('/dashboard')`.
+- **Footer link**: "Chưa có tài khoản? **Đăng ký ngay**" → `/register`.
+
+#### `/register` — `src/app/(unauth)/register/page.tsx`
+
+- **Client Component**, `useForm` + `zodResolver(registerSchema)`, `mode: 'all'`.
+- **Form card**: cùng style với `/login`.
+- **Tiêu đề**: "Tạo tài khoản mới" (h2) + "Bắt đầu hành trình học tập với Emerald Study." (p).
+- **Fields**:
+  - Họ và tên — `<Input>`, label "Họ và tên".
+  - Email — `<Input>`, label "Email".
+  - Mật khẩu — `<PasswordInput>`, label "Mật khẩu".
+  - Xác nhận mật khẩu — `<PasswordInput>`, label "Xác nhận mật khẩu".
+  - Checkbox "Tôi đồng ý với **Điều khoản dịch vụ** và **Chính sách bảo mật**" — error text hiện bên dưới nếu chưa tick.
+- **Error banner**: cùng style với `/login`.
+- **Submit button**: cùng style gradient, disabled + `<Spinner>` khi `isSubmitting`.
+- **Submit action**: `supabase.auth.signUp({ email, password, options: { data: { full_name: fullName } } })` → `router.push('/dashboard')`.
+- **Footer link**: "Đã có tài khoản? **Đăng nhập**" → `/login`.
+
+**Redirect flows**:
+
+- Sau login / register thành công: `→ /dashboard`.
+- Sau logout: `→ /login`.
+- Truy cập route auth khi chưa đăng nhập: `→ /login`.
 
 ### B. Dashboard (Bảng điều khiển)
 
@@ -160,8 +199,8 @@
 - **Delete**: Confirmation dialog trong trang Edit, redirect về `/library/[deckId]/cards` sau khi xóa.
 - Form validation bằng `zod` + `react-hook-form` (`mode: 'all'`, `reValidateMode: 'onChange'`), lỗi hiển thị inline bằng tiếng Việt.
 - Examples: tối đa 5, dùng `useFieldArray`.
-  - ZH examples: `cn` required, `py`/`vn`/`en` optional.
-  - EN examples: `en` required, `vn`/`cn` optional, `py` hidden.
+  - ZH examples: `cn`, `py`, `vn` **required**; `en` optional.
+  - EN examples: `en`, `vn` **required**; `cn` optional; `py` hidden (không hiển thị).
 - **Word type chip**: chọn loại từ (Danh từ / Động từ / Tính từ / Trạng từ / Thán từ) — optional, color-coded.
 - **Độ khó ban đầu**: selector 3 bậc (Dễ / Trung bình / Khó) khi tạo thẻ mới. Ở chế độ edit, FSRS tự động điều chỉnh (không hiện selector).
 - **Validation schema**: `createCardSchema(language)` — dynamic schema theo ngôn ngữ (zh/en). ZH: `pinyin` required; EN: `pinyin` optional.
