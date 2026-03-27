@@ -2,10 +2,17 @@
 
 import { Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { deleteCard } from '@/lib/data/cards';
 
 type Props = {
@@ -15,26 +22,23 @@ type Props = {
 
 function DeleteCardButton({ cardId, deckId }: Props) {
   const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const handleDelete = () => {
-    if (
-      !confirm(
-        'Bạn có chắc muốn xóa thẻ này không? Hành động này không thể hoàn tác.',
-      )
-    )
-      return;
-
+  function handleDelete() {
+    setError(null);
     startTransition(async () => {
       const result = await deleteCard(cardId, deckId);
       if (result.error) {
-        toast.error(`❌ ${result.error}`);
+        setError(result.error);
         return;
       }
+      setOpen(false);
       toast.success('🗑️ Đã xóa thẻ.');
-      router.push(`/library/${deckId}`);
+      router.push(`/library/${deckId}/cards`);
     });
-  };
+  }
 
   return (
     <div className="flex items-center justify-between">
@@ -44,16 +48,57 @@ function DeleteCardButton({ cardId, deckId }: Props) {
           Hành động này không thể hoàn tác.
         </p>
       </div>
-      <Button
-        type="button"
-        variant="outline"
-        onClick={handleDelete}
-        disabled={isPending}
-        className="border-red-200 text-red-500 hover:border-red-300 hover:bg-red-50 hover:text-red-600"
-      >
-        <Trash2 className="h-4 w-4" />
-        {isPending ? 'Đang xóa...' : 'Xóa thẻ'}
-      </Button>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            className="border-red-200 text-red-500 hover:border-red-300 hover:bg-red-50 hover:text-red-600"
+          >
+            <Trash2 className="h-4 w-4" />
+            Xóa thẻ
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Xóa thẻ</DialogTitle>
+          </DialogHeader>
+
+          <div className="mt-2 space-y-4">
+            <p className="text-on-muted text-sm">
+              Bạn có chắc muốn xóa thẻ này không? Hành động này{' '}
+              <span className="text-on-surface font-semibold">
+                không thể hoàn tác
+              </span>
+              .
+            </p>
+
+            {error && (
+              <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+                {error}
+              </p>
+            )}
+
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="ghost"
+                onClick={() => setOpen(false)}
+                disabled={isPending}
+              >
+                Hủy
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleDelete}
+                disabled={isPending}
+              >
+                {isPending ? 'Đang xóa...' : 'Xóa thẻ'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -2,8 +2,10 @@
 
 import dayjs from 'dayjs';
 import {
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
   Filter,
   Pencil,
   Search,
@@ -12,9 +14,16 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState, useTransition } from 'react';
+import { toast } from 'sonner';
 
 import { MasteryBadge } from '@/components/library/MasteryBadge';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { deleteCard } from '@/lib/data/cards';
 
 import type { Example, Flashcard, FsrsData } from '@/types';
@@ -51,6 +60,92 @@ function getLastReviewLabel(lastReview: string | null): string {
 
 type StateFilter = 'all' | '0' | '1' | '2' | '3';
 
+const WORD_TYPE_MAP: Record<string, { label: string; className: string }> = {
+  noun: { label: 'Danh từ', className: 'bg-blue-50 text-blue-700' },
+  verb: { label: 'Động từ', className: 'bg-purple-50 text-purple-700' },
+  adj: { label: 'Tính từ', className: 'bg-orange-50 text-orange-700' },
+  adv: { label: 'Trạng từ', className: 'bg-pink-50 text-pink-700' },
+  other: { label: 'Khác', className: 'bg-slate-100 text-slate-600' },
+};
+
+function WordTypeBadge({ wordType }: { wordType?: string | null }) {
+  if (!wordType) return <span className="text-xs text-slate-300">—</span>;
+  const config = WORD_TYPE_MAP[wordType];
+  if (!config) return <span className="text-xs text-slate-300">—</span>;
+  return (
+    <span
+      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${config.className}`}
+    >
+      {config.label}
+    </span>
+  );
+}
+
+function ExampleCell({
+  examples,
+  isZh,
+}: {
+  examples: Example[];
+  isZh: boolean;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  if (examples.length === 0)
+    return <span className="text-xs text-slate-300">—</span>;
+
+  const visible = expanded ? examples : examples.slice(0, 1);
+
+  return (
+    <div className="max-w-64 space-y-2">
+      {visible.map((ex, i) => (
+        <div key={i} className="space-y-0.5">
+          {isZh ? (
+            <>
+              {ex.cn && (
+                <p className="font-cn text-on-surface text-sm font-medium">
+                  {ex.cn}
+                </p>
+              )}
+              {ex.py && (
+                <p className="text-xs text-emerald-600 italic">{ex.py}</p>
+              )}
+              {ex.vn && <p className="text-xs text-slate-500">{ex.vn}</p>}
+              {ex.en && (
+                <p className="text-xs text-slate-400 italic">{ex.en}</p>
+              )}
+            </>
+          ) : (
+            <>
+              {ex.en && (
+                <p className="text-on-surface text-sm font-medium">{ex.en}</p>
+              )}
+              {ex.vn && <p className="text-xs text-slate-500">{ex.vn}</p>}
+              {ex.cn && (
+                <p className="font-cn text-xs text-slate-400 italic">{ex.cn}</p>
+              )}
+            </>
+          )}
+        </div>
+      ))}
+      {examples.length > 1 && (
+        <button
+          onClick={() => setExpanded((v) => !v)}
+          className="flex cursor-pointer items-center gap-0.5 text-[10px] font-semibold text-emerald-600 hover:text-emerald-700"
+        >
+          {expanded ? (
+            <>
+              <ChevronUp className="h-3 w-3" /> Ẩn bớt
+            </>
+          ) : (
+            <>
+              <ChevronDown className="h-3 w-3" /> +{examples.length - 1} ví dụ
+            </>
+          )}
+        </button>
+      )}
+    </div>
+  );
+}
+
 const STATE_FILTERS: { value: StateFilter; label: string }[] = [
   { value: 'all', label: 'Tất cả trạng thái' },
   { value: '2', label: 'Đã thuộc' },
@@ -70,11 +165,13 @@ type Props = {
 function FlashcardTable({ flashcards, deckId, language }: Props) {
   const isZh = language === 'zh';
   const router = useRouter();
-  const [, startDeleteTransition] = useTransition();
+  const [isPending, startDeleteTransition] = useTransition();
 
   const [query, setQuery] = useState('');
   const [stateFilter, setStateFilter] = useState<StateFilter>('all');
   const [page, setPage] = useState(1);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase().trim();
@@ -113,9 +210,15 @@ function FlashcardTable({ flashcards, deckId, language }: Props) {
   }
 
   function handleDelete(cardId: string) {
-    if (!confirm('Xóa thẻ này? Hành động không thể hoàn tác.')) return;
+    setDeleteError(null);
     startDeleteTransition(async () => {
-      await deleteCard(cardId, deckId);
+      const result = await deleteCard(cardId, deckId);
+      if (result.error) {
+        setDeleteError(result.error);
+        return;
+      }
+      setDeleteTarget(null);
+      toast.success('🗑️ Đã xóa thẻ.');
       router.refresh();
     });
   }
@@ -184,10 +287,13 @@ function FlashcardTable({ flashcards, deckId, language }: Props) {
                     Tiếng Việt
                   </th>
                   <th className="px-8 py-4 text-[10px] font-bold tracking-widest text-slate-400 uppercase">
-                    {isZh ? 'Tiếng Anh' : 'Phát âm / Ghi chú'}
+                    {isZh ? 'Tiếng Anh' : 'Tiếng Trung'}
                   </th>
                   <th className="px-8 py-4 text-[10px] font-bold tracking-widest text-slate-400 uppercase">
                     Ví dụ
+                  </th>
+                  <th className="px-8 py-4 text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+                    Loại từ
                   </th>
                   <th className="px-8 py-4 text-[10px] font-bold tracking-widest text-slate-400 uppercase">
                     Trạng thái
@@ -198,9 +304,6 @@ function FlashcardTable({ flashcards, deckId, language }: Props) {
                   <th className="px-8 py-4 text-[10px] font-bold tracking-widest text-slate-400 uppercase">
                     Lần cuối
                   </th>
-                  <th className="px-8 py-4 text-[10px] font-bold tracking-widest text-slate-400 uppercase">
-                    Lịch sử
-                  </th>
                   <th className="px-8 py-4 text-right text-[10px] font-bold tracking-widest text-slate-400 uppercase">
                     Thao tác
                   </th>
@@ -210,7 +313,6 @@ function FlashcardTable({ flashcards, deckId, language }: Props) {
                 {paginated.map((card) => {
                   const state = (card.fsrs_data as FsrsData)?.state ?? 0;
                   const examples = (card.examples ?? []) as Example[];
-                  const firstExample = examples[0];
 
                   return (
                     <tr
@@ -260,31 +362,10 @@ function FlashcardTable({ flashcards, deckId, language }: Props) {
                         )}
                       </td>
                       <td className="px-8 py-5 align-top">
-                        {firstExample ? (
-                          <div className="max-w-56 space-y-0.5">
-                            <p className="text-on-surface line-clamp-1 text-sm font-medium">
-                              {firstExample.cn}
-                            </p>
-                            {firstExample.py && (
-                              <p className="text-on-muted line-clamp-1 text-xs italic">
-                                {firstExample.py}
-                              </p>
-                            )}
-                            <p className="text-on-muted line-clamp-1 text-xs">
-                              {firstExample.vn}
-                            </p>
-                            {examples.length > 1 && (
-                              <Badge
-                                variant="secondary"
-                                className="h-4 px-1 text-[10px]"
-                              >
-                                +{examples.length - 1}
-                              </Badge>
-                            )}
-                          </div>
-                        ) : (
-                          <span className="text-xs text-slate-300">—</span>
-                        )}
+                        <ExampleCell examples={examples} isZh={isZh} />
+                      </td>
+                      <td className="px-8 py-5 align-top">
+                        <WordTypeBadge wordType={card.word_type} />
                       </td>
                       <td className="px-8 py-5 align-top">
                         <MasteryBadge state={state} />
@@ -310,24 +391,6 @@ function FlashcardTable({ flashcards, deckId, language }: Props) {
                           )}
                         </span>
                       </td>
-                      <td className="px-8 py-5 align-top">
-                        <div className="flex flex-col gap-0.5">
-                          <span className="text-xs text-slate-500">
-                            <span className="font-semibold text-emerald-600">
-                              {(card.fsrs_data as FsrsData)?.reps ?? 0}
-                            </span>{' '}
-                            ôn
-                          </span>
-                          {((card.fsrs_data as FsrsData)?.lapses ?? 0) > 0 && (
-                            <span className="text-xs text-slate-500">
-                              <span className="font-semibold text-red-500">
-                                {(card.fsrs_data as FsrsData)?.lapses}
-                              </span>{' '}
-                              quên
-                            </span>
-                          )}
-                        </div>
-                      </td>
                       <td className="px-8 py-5 text-right align-top">
                         <div className="flex items-center justify-end gap-1 transition-opacity">
                           <Link
@@ -337,8 +400,11 @@ function FlashcardTable({ flashcards, deckId, language }: Props) {
                             <Pencil className="h-4 w-4" />
                           </Link>
                           <button
-                            onClick={() => handleDelete(card.id)}
-                            className="rounded-lg p-2 text-red-500 transition-colors"
+                            onClick={() => {
+                              setDeleteTarget(card.id);
+                              setDeleteError(null);
+                            }}
+                            className="cursor-pointer rounded-lg p-2 text-red-500 transition-colors hover:bg-red-50"
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
@@ -360,7 +426,7 @@ function FlashcardTable({ flashcards, deckId, language }: Props) {
               <button
                 disabled={page === 1}
                 onClick={() => setPage((p) => p - 1)}
-                className="rounded-lg p-2 transition-colors hover:bg-slate-200 disabled:opacity-30"
+                className="cursor-pointer rounded-lg p-2 transition-colors hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-30"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
@@ -372,8 +438,8 @@ function FlashcardTable({ flashcards, deckId, language }: Props) {
                     onClick={() => setPage(p)}
                     className={
                       page === p
-                        ? 'h-8 w-8 rounded-lg bg-emerald-600 text-xs font-bold text-white'
-                        : 'h-8 w-8 rounded-lg text-xs font-bold transition-colors hover:bg-slate-200'
+                        ? 'h-8 w-8 cursor-pointer rounded-lg bg-emerald-600 text-xs font-bold text-white'
+                        : 'h-8 w-8 cursor-pointer rounded-lg text-xs font-bold transition-colors hover:bg-slate-200'
                     }
                   >
                     {p}
@@ -383,7 +449,7 @@ function FlashcardTable({ flashcards, deckId, language }: Props) {
               <button
                 disabled={page === totalPages}
                 onClick={() => setPage((p) => p + 1)}
-                className="rounded-lg p-2 transition-colors hover:bg-slate-200 disabled:opacity-30"
+                className="cursor-pointer rounded-lg p-2 transition-colors hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-30"
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
@@ -391,6 +457,50 @@ function FlashcardTable({ flashcards, deckId, language }: Props) {
           </div>
         </>
       )}
+
+      {/* Delete confirmation dialog */}
+      <Dialog
+        open={deleteTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Xóa thẻ</DialogTitle>
+          </DialogHeader>
+          <div className="mt-2 space-y-4">
+            <p className="text-on-muted text-sm">
+              Bạn có chắc muốn xóa thẻ này không? Hành động này{' '}
+              <span className="text-on-surface font-semibold">
+                không thể hoàn tác
+              </span>
+              .
+            </p>
+            {deleteError && (
+              <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+                {deleteError}
+              </p>
+            )}
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="ghost"
+                onClick={() => setDeleteTarget(null)}
+                disabled={isPending}
+              >
+                Hủy
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => deleteTarget && handleDelete(deleteTarget)}
+                disabled={isPending}
+              >
+                {isPending ? 'Đang xóa...' : 'Xóa thẻ'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

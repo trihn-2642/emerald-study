@@ -96,7 +96,7 @@ function CreateDeckDialog({
       <Dialog open={isOpen} onOpenChange={handleClose}>
         {!isControlled && (
           <DialogTrigger asChild>
-            <button className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700">
+            <button className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700">
               <Plus className="h-4 w-4" />
               {label ?? 'Tạo bộ thẻ mới'}
             </button>
@@ -167,7 +167,7 @@ function CreateDeckDialog({
                         type="button"
                         onClick={() => field.onChange(lang.value)}
                         className={cn(
-                          'rounded-xl border-2 px-4 py-3 text-left transition-all',
+                          'cursor-pointer rounded-xl border-2 px-4 py-3 text-left transition-all',
                           field.value === lang.value
                             ? 'border-emerald-500 bg-emerald-50'
                             : 'border-outline-variant hover:border-emerald-300',

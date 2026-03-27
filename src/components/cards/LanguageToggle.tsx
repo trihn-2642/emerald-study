@@ -14,7 +14,7 @@ function LanguageToggle({ value, onChange }: Props) {
         type="button"
         onClick={() => onChange('zh')}
         className={cn(
-          'rounded-lg px-4 py-1.5 text-sm font-semibold transition-all',
+          'cursor-pointer rounded-lg px-4 py-1.5 text-sm font-semibold transition-all',
           value === 'zh'
             ? 'bg-white text-emerald-700 shadow-sm'
             : 'text-on-muted hover:text-on-surface',
@@ -26,7 +26,7 @@ function LanguageToggle({ value, onChange }: Props) {
         type="button"
         onClick={() => onChange('en')}
         className={cn(
-          'rounded-lg px-4 py-1.5 text-sm font-semibold transition-all',
+          'cursor-pointer rounded-lg px-4 py-1.5 text-sm font-semibold transition-all',
           value === 'en'
             ? 'bg-white text-emerald-700 shadow-sm'
             : 'text-on-muted hover:text-on-surface',

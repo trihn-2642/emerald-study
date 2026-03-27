@@ -8,12 +8,12 @@ Xây dựng trang Chi tiết Deck hiển thị danh sách tất cả flashcard t
 
 ## 📁 Các file đã tạo
 
-| File                                             | Mô tả                                                                 |
-| ------------------------------------------------ | --------------------------------------------------------------------- |
-| `src/app/(auth)/library/[deckId]/cards/page.tsx` | Server Component: load deck + flashcards, render header + table       |
-| `src/components/library/DeckDetailHeader.tsx`    | Header: 4 stats tiles + nút "Học ngay" + DeleteDeckDialog + back link |
-| `src/components/library/FlashcardTable.tsx`      | Client Component: bảng thẻ với search + sort + link chỉnh sửa         |
-| `src/components/library/MasteryBadge.tsx`        | Badge trạng thái FSRS: Mới / Đang học / Ôn tập / Học lại              |
+| File                                             | Mô tả                                                                                                                                    |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/app/(auth)/library/[deckId]/cards/page.tsx` | Server Component: load deck + flashcards, render header + table                                                                          |
+| `src/components/library/DeckDetailHeader.tsx`    | Header: 4 stats tiles + nút "Học ngay" + DeleteDeckDialog + back link                                                                    |
+| `src/components/library/FlashcardTable.tsx`      | Client Component: bảng thẻ với search + state filter + pagination (10/trang) + `ExampleCell` expand/collapse + delete dialog + edit link |
+| `src/components/library/MasteryBadge.tsx`        | Badge trạng thái FSRS: Mới / Đang học / Ôn tập / Học lại                                                                                 |
 
 ---
 
@@ -62,27 +62,21 @@ Xây dựng trang Chi tiết Deck hiển thị danh sách tất cả flashcard t
 
 ### `FlashcardTable`
 
-```typescript
-type SortValue = 'next_review' | 'front' | 'state';
-
-const SORTS = [
-  { value: 'next_review', label: 'Ngày ôn' },
-  { value: 'front', label: 'Từ A-Z' },
-  { value: 'state', label: 'Trạng thái' },
-];
-```
-
-- **Columns**: Từ/Cụm từ | Phiên âm | Nghĩa tiếng Việt | Tiếng Anh | Ví dụ | Trạng thái | Ôn tiếp | Thao tác
-- **Cột "Ôn tiếp"** dùng `dayjs`, so sánh `next_review` với ngày hiện tại:
-  - Quá hạn (diff < 0): `text-red-500` + label "Quá hạn"
-  - Hôm nay (diff = 0): `text-orange-500` + label "Hôm nay"
-  - Ngày mai (diff = 1): `text-amber-500` + label "Ngày mai"
-  - Tương lai (diff > 1): `text-slate-400` + label "X ngày"
-- **Cột "Sửa"**: icon `Pencil` → link `/library/[deckId]/cards/[cardId]/edit`
-- **Nút "+ Thêm thẻ"**: link `/library/[deckId]/cards/new`
+- **Columns (ZH)**: Chữ Hán | Phiên âm | Tiếng Việt | Tiếng Anh | Ví dụ | Loại từ | Trạng thái | Ôn tiếp | Lần cuối | Thao tác
+- **Columns (EN)**: Từ vựng | Tiếng Việt | Tiếng Trung | Ví dụ | Loại từ | Trạng thái | Ôn tiếp | Lần cuối | Thao tác
+- **Cột "Ví dụ"**: `ExampleCell` component — hiển thị 1 ví dụ mặc định, nút expand "+X ví dụ" / "Lẩn bớt"
+- **Cột "Ôn tiếp"** dùng `dayjs`:
+  - Quá hạn (diff < 0): lại `bg-red-100 text-red-600`, label "Quá hạn"
+  - Hôm nay (diff = 0): `bg-orange-100 text-orange-600`, label "Hôm nay"
+  - Ngày mai (diff = 1): `bg-amber-100 text-amber-600`, label "Ngày mai"
+  - Tương lai: `bg-slate-100 text-slate-500`, label "X ngày"
+- **Cột "Lần cuối"**: hiển thị `last_review` dạng tương đối ("Hôm nay", "Hôm qua", "X ngày trước")
+- **Cột "Lịch sử"**: số lần ôn (reps) và số lần quên (lapses) từ `fsrs_data`
+- **State filter**: dropdown [Tất cả / Đã thuộc / Đang học / Mới / Học lại]
+- **Pagination**: 10 thẻ / trang, prev/next + số trang
 - **Search**: filter theo `front`, `pinyin`, `meaning_vn` — realtime client-side
-- **Sort**: thực hiện client-side trên mảng đã filter
-- **Count**: hiển thị `X / Y thẻ` (filtered / total)
+- **Sort**: mặc định sắp theo `next_review` tăng dần
+- **Thao tác**: Pencil icon → link edit; Trash2 icon → confirmation dialog inline
 - **Empty state riêng**: "Bộ thẻ chưa có thẻ nào" vs "Không tìm thấy thẻ phù hợp"
 
 ### `MasteryBadge`
@@ -118,14 +112,17 @@ const STATE_MAP = {
 
 ### Bảng thẻ (FlashcardTable)
 
-- [x] Hiển thị đủ columns: Từ, Phiên âm, Nghĩa TV, Tiếng Anh, Ví dụ, Trạng thái, Ôn tiếp, Thao tác
+- [x] Hiển thị đủ columns theo ngôn ngữ (xem chi tiết phán trên)
 - [x] `MasteryBadge` đúng màu theo FSRS state (0–3)
 - [x] Cột "Ôn tiếp" dùng `dayjs` với màu tương đối
+- [x] Cột "Lần cuối" dùng `dayjs` relative time
+- [x] `ExampleCell` expand/collapse — 1 ví dụ mặc định, toggle hiển thị tất cả
+- [x] `WordTypeBadge` hiển thị loại từ (Danh từ/Động từ/Tính từ/Trạng từ/Khác) với màu tương ứng, „—“ khi không có
 - [x] Tìm kiếm realtime theo `front`, `pinyin`, `meaning_vn`
-- [x] Sort: Ngày ôn / Từ A-Z / Trạng thái
-- [x] Count hiển thị filtered / total
+- [x] State filter: dropdown các trạng thái FSRS
+- [x] Pagination: 10 thẻ / trang
 - [x] Icon sửa → `/library/[deckId]/cards/[cardId]/edit`
-- [x] Nút "+ Thêm thẻ" → `/library/[deckId]/cards/new`
+- [x] Icon xóa → confirmation dialog inline (không redirect)
 - [x] Empty state phân biệt "chưa có thẻ" vs "không tìm thấy"
 
 ### General

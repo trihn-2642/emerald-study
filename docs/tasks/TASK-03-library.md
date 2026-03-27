@@ -12,7 +12,7 @@ Xây dựng trang Thư viện để xem tất cả bộ thẻ, tìm kiếm/lọc
 | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
 | `src/app/(auth)/library/page.tsx`                | Server Component: trang thư viện, 2 Suspense section stream độc lập                                                                    |
 | `src/app/(auth)/library/loading.tsx`             | Skeleton loading state cho Library page                                                                                                |
-| `src/app/(auth)/library/[deckId]/page.tsx`       | Server Component: Chi tiết 1 deck, danh sách thẻ                                                                                       |
+| `src/app/(auth)/library/[deckId]/cards/page.tsx` | Server Component: Chi tiết 1 deck, danh sách thẻ (bảng)                                                                                |
 | `src/lib/data/library.ts`                        | Data fetching + Server Actions: `getAllDecks` (cached), `getDeckById`, `getFlashcardsByDeck`, `createDeck`, `updateDeck`, `deleteDeck` |
 | `src/components/library/LibraryDecksSection.tsx` | Server Component: fetch decks, render grid hoặc empty state                                                                            |
 | `src/components/library/LibraryStatsSection.tsx` | Server Component: fetch decks (cached), render CTA + stats 2×2 tiles                                                                   |
@@ -23,7 +23,7 @@ Xây dựng trang Thư viện để xem tất cả bộ thẻ, tìm kiếm/lọc
 | `src/components/library/DeckListGrid.tsx`        | Client Component: grid decks + search + filter + sort (shadcn `Select`) + `useOptimistic`                                              |
 | `src/components/library/LibraryDeckCard.tsx`     | Card Bento: 3-dot `DropdownMenu` (Edit/Delete), confirmation dialog, mastery ring, due badge, loading overlay                          |
 | `src/components/library/DeckDetailHeader.tsx`    | Header deck detail: 4 stats + nút Học ngay + DeleteDeckDialog                                                                          |
-| `src/components/library/FlashcardTable.tsx`      | Client Component: bảng thẻ + search + sort + dayjs relative time                                                                       |
+| `src/components/library/FlashcardTable.tsx`      | Client Component: bảng thẻ + search + state filter + pagination (10/trang) + `ExampleCell` expand/collapse + delete dialog + edit link |
 | `src/components/library/MasteryBadge.tsx`        | Badge FSRS state: Mới / Đang học / Ôn tập / Học lại                                                                                    |
 
 ---
@@ -56,23 +56,31 @@ Xây dựng trang Thư viện để xem tất cả bộ thẻ, tìm kiếm/lọc
 │ 📗 Hán tự HSK 1-3  [CN/VN]  [Học ngay (6)] │
 │ 7 thẻ | 6 cần ôn | 0 mới | 57% thuộc lòng  │
 ├─────────────────────────────────────────────┤
-│ [🔍 Tìm thẻ...]        [Ngày ôn ▼] [+ Thêm]│
-├──────┬────────┬──────────────┬───────┬──────┤
-│ Từ/Cụm│Phiên âm│Nghĩa TV   │Trạng thái│Ôn  │
-├──────┼────────┼──────────────┼───────┼──────┤
-│ 学习 │xué xí │Học tập       │Đang học│Hôm nay│
-│ 工作 │gōng zuò│Làm việc    │Ôn tập │7 ngày │
-└──────┴────────┴──────────────┴───────┴──────┘
+│ [🔍 Tìm thẻ...]    [Trạng thái ▼]                │
+├─────┬────────┬──────────────┬──────┬──────┬──┤
+│ Từ  │ Phiên âm│Nghĩa TV    │T.Anh │Trạng  │ Ôn │ Sửa│
+├─────┼────────┼──────────────┼──────┼──────┼──┤
+│ 学习 │ xué xí │ Học tập      │...   │Đang học│Hôm│  ✏️  │
+│ 工作 │gōng zuò│ Làm việc    │...   │Ôn tập │ 7ng│  ✏️  │
+└─────┴────────┴──────────────┴──────┴──────┴──┴──────┘
 ```
+
+**Columns (FlashcardTable)**:
+
+- ZH: Chữ Hán | Phiên âm | Tiếng Việt | Tiếng Anh | Ví dụ | Trạng thái | Ôn tiếp | Lần cuối | Lịch sử | Thao tác
+- EN: Từ vựng | Tiếng Việt | Tiếng Trung | Ví dụ | Trạng thái | Ôn tiếp | Lần cuối | Lịch sử | Thao tác
+- **Ví dụ**: `ExampleCell` component hiển thị 1 ví dụ mặc định, nút expand "+X ví dụ"
+- **Trạng thái**: filter dropdown ([Tất cả / Đã thuộc / Đang học / Mới / Học lại])
+- **Pagination**: 10 thẻ / trang
 
 ### FSRS State → MasteryBadge mapping
 
 ```typescript
 const STATE_MAP = {
-  0: { label: 'Mới', className: 'bg-slate-100 text-slate-600' },
-  1: { label: 'Đang học', className: 'bg-amber-100 text-amber-700' },
-  2: { label: 'Ôn tập', className: 'bg-blue-100 text-blue-700' },
-  3: { label: 'Học lại', className: 'bg-red-100 text-red-700' },
+  0: { label: 'Mới', className: 'bg-blue-500/10 text-blue-600' },
+  1: { label: 'Đang học', className: 'bg-orange-500/10 text-orange-600' },
+  2: { label: 'Đã thuộc', className: 'bg-emerald-500/10 text-emerald-600' },
+  3: { label: 'Học lại', className: 'bg-red-500/10 text-red-600' },
 };
 ```
 

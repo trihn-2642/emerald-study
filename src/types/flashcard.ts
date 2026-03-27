@@ -29,6 +29,7 @@ export interface Flashcard {
   next_review: string; // ISO timestamp UTC
   created_at: string;
   language: 'zh' | 'en';
+  word_type?: string;
 }
 
 export interface Deck {

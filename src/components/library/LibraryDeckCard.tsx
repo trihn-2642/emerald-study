@@ -82,7 +82,7 @@ function LibraryDeckCard({ deck, isOptimistic }: Props) {
               <DropdownMenuTrigger asChild>
                 <button
                   aria-label="Tuỳ chọn"
-                  className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                  className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600"
                 >
                   <MoreHorizontal className="h-4 w-4" />
                 </button>

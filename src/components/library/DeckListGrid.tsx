@@ -145,7 +145,7 @@ function DeckListGrid({ decks }: Props) {
         {/* Add new deck placeholder */}
         <button
           onClick={() => setCreateOpen(true)}
-          className="group flex min-h-45 flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-200 bg-white p-5 text-center transition-all hover:border-emerald-400 hover:bg-emerald-50"
+          className="group flex min-h-45 cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-200 bg-white p-5 text-center transition-all hover:border-emerald-400 hover:bg-emerald-50"
         >
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 transition-colors group-hover:bg-emerald-100">
             <Plus className="h-5 w-5 text-slate-400 group-hover:text-emerald-600" />
