@@ -151,7 +151,7 @@ function CardForm({ deckId, deckName, deckLanguage, initialData }: Props) {
       {/* Page header */}
       <header className="mb-8 flex items-end justify-between">
         <div>
-          <nav className="mb-2 flex items-center gap-1 text-sm text-slate-400">
+          <nav className="mb-3 flex items-center gap-1 text-xs font-medium text-slate-500">
             <Link
               href="/library"
               className="transition-colors hover:text-emerald-600"
@@ -166,13 +166,16 @@ function CardForm({ deckId, deckName, deckLanguage, initialData }: Props) {
               {deckName}
             </Link>
             <ChevronRight className="h-3.5 w-3.5" />
-            <span className="font-medium text-emerald-600">
+            <span className="text-emerald-600">
               {isEdit ? 'Chỉnh sửa thẻ' : 'Thêm thẻ mới'}
             </span>
           </nav>
-          <h2 className="text-on-surface text-3xl font-extrabold tracking-tight">
-            {isEdit ? 'Chỉnh sửa thẻ học' : 'Tạo thẻ học mới'}
-          </h2>
+          <div className="mb-1 flex items-center gap-2.5">
+            <BookOpen className="h-6 w-6 text-emerald-600" />
+            <h1 className="text-on-surface text-3xl font-black tracking-tight">
+              {isEdit ? 'Chỉnh sửa thẻ học' : 'Tạo thẻ học mới'}
+            </h1>
+          </div>
           <p className="mt-1 text-slate-500">
             Hệ thống lặp lại ngắt quãng (SRS) sẽ giúp bạn ghi nhớ hiệu quả hơn.
           </p>
@@ -216,7 +219,14 @@ function CardForm({ deckId, deckName, deckLanguage, initialData }: Props) {
               <div className="space-y-6">
                 {/* Language badge (locked to deck) */}
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-700">
+                  <span
+                    className={cn(
+                      'inline-flex items-center rounded-lg border px-3 py-1.5 text-sm font-semibold text-emerald-700',
+                      language === 'zh'
+                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                        : 'border-blue-200 bg-blue-50 text-blue-700',
+                    )}
+                  >
                     {language === 'zh' ? '中文' : 'EN'}
                   </span>
                   <span className="text-xs text-slate-400">

@@ -45,7 +45,7 @@ Xây dựng trang Chi tiết Deck hiển thị danh sách tất cả flashcard t
 - **4 stats tiles**: Tổng thẻ / Cần ôn / Thẻ mới / Thuộc lòng (mastery%)
 - **Language badge**: hiển thị từ `LANGUAGE_LABELS[language]`
 - **Nút "Học ngay (N)"**: link đến `/study/[deckId]`, chỉ hiện khi `due_count > 0`
-- **Nút "Xem thẻ"**: link đến `/study/[deckId]`, hiện khi `due_count === 0`
+- **Nút "Ôn lại bộ này"**: link đến `/study/[deckId]?mode=review`, hiện khi `due_count === 0` và `card_count > 0`
 - **DeleteDeckDialog**: xóa cascade, redirect về `/library`
 - **Data type**: nhận `DeckDetail` (extends `Deck` + thêm `new_count`, `mastered_count`, `learning_count`)
 
@@ -106,7 +106,7 @@ const STATE_MAP = {
 - [x] Back button "← Thư viện" → `/library`
 - [x] Tên deck + language badge
 - [x] 4 stats tiles: Tổng thẻ / Cần ôn / Thẻ mới / Thuộc lòng
-- [x] Nút "Học ngay (N)" khi `due_count > 0`, "Xem thẻ" khi `due_count === 0`
+- [x] Nút "Học ngay (N)" khi `due_count > 0`, "Ôn lại bộ này" khi `due_count === 0 && card_count > 0`
 - [x] `DeleteDeckDialog` — xóa cascade, redirect về `/library`
 - [x] 404 khi deck không tồn tại hoặc không thuộc user
 

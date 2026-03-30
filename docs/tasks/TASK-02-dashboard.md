@@ -137,6 +137,8 @@ getRecentActivity(userId) → RecentActivity[]  (2 ngày gần nhất, nhóm the
 
 > 💡 **Giải thích "Cần ôn > Đã thuộc"**: Đây là hành vi đúng của FSRS. "Đã thuộc" (state=2) nghĩa là thẻ đã tốt nghiệp sang giai đoạn Review với khoảng lặp dài (ngày/tuần), nhưng vẫn cần ôn định kỳ để duy trì trí nhớ. `due_count` = tất cả thẻ có `next_review <= now` ở mọi state (new + learning + review + relearning).
 
+> ⚠️ **`getTodayStats` — tránh progress > 100%**: `total = reviewed_today + still_due` (không phải chỉ `still_due`). Widget dùng `Math.min(percent, 100)` làm giá trị an toàn.
+
 ### `React.cache()` deduplication
 
 `getUser()` trong `src/lib/supabase/server.ts` dùng `React.cache()` — layout và page đều gọi, nhưng chỉ 1 network request per render tree.

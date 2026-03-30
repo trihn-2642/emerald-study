@@ -151,7 +151,8 @@
 
 ### C. Phiên học tập (Study Session)
 
-- **Khởi tạo session**: Load tất cả thẻ có `next_review <= now()` của deck, xáo trộn, lưu vào `useStudyStore`.
+- **Trang danh sách** (`/study`): Server Component gọi `getDueDecks()`, chia thành "Cần ôn hôm nay" và "Đã hoàn thành — ôn lại nếu muốn". Nút "Học ngay" → `/study/[id]`; nút "Ôn lại" → `/study/[id]?mode=review`.
+- **Khởi tạo session**: Load thẻ `next_review <= now()` (`getDueCards`) hoặc tất cả thẻ (`getAllCards` khi `mode=review`), xáo trộn, lưu vào `useStudyStore`.
 - **Interaction**: Click thẻ để lật (Flip). Sau khi flip, hiển thị 4 nút chấm điểm.
 - **Animation (Framer Motion)**:
   - Flip 3D: xoay 180° theo trục Y, `perspective: 1000px`, `transformStyle: preserve-3d`.
@@ -170,8 +171,9 @@
   - Khi nhấn Khó/Tốt/Dễ: thẻ hoàn thành, chuyển thẻ tiếp theo.
   - Session kết thúc khi queue rỗng → hiển thị `SessionComplete`.
 - **Logic FSRS**: Gọi `fsrs.next(card, rating)` → cập nhật `fsrs_data` + `next_review` lên Supabase.
-- **SessionComplete**: Hiển thị confetti (`react-confetti`), thống kê breakdown theo rating, nút "Về Dashboard" và "Học lại".
-- **Keyboard shortcuts** (desktop): `Space` = flip, `1/2/3/4` = rating.
+- **Back-navigation**: `viewingIndex` state trong session cho phép xem lại thẻ đã học (read-only). Nút `<` `>` trong StudyHeader và phím `←` `→`. Khi đang xem lịch sử, RatingButtons bị ẩn.
+- **SessionComplete**: Hiển thị confetti (`react-confetti`), thống kê breakdown theo rating từ `ratingStats`, nút **"Về Phiên học"** (`href="/study"`) và "Học lại bộ này".
+- **Keyboard shortcuts** (desktop): `Space` = flip/unflip, `1/2/3/4` = rating, `←` / `→` = điều hướng lịch sử thẻ.
 
 ### D. Thư viện & Quản lý Deck (Library)
 
@@ -269,13 +271,16 @@ create policy "Users manage own flashcards"
 /                                               → redirect → /dashboard (nếu đã login) hoặc /login
 /login                                          → Trang đăng nhập
 /register                                       → Trang đăng ký
-/(auth)                                         → Route group bảo vệ (yêu cầu auth)
+/(auth)                                         → Route group bảo vệ (yêu cầu auth) + AppShell
   /dashboard                                    → Bảng điều khiển
   /library                                      → Thư viện tất cả decks
   /library/[deckId]/cards                       → Chi tiết 1 deck + danh sách thẻ (bảng)
   /library/[deckId]/cards/new                   → Thêm thẻ mới
   /library/[deckId]/cards/[cardId]/edit         → Chỉnh sửa thẻ
-  /study/[deckId]                               → Phiên học tập (chưa triển khai)
+  /study                                        → Danh sách phiên học hôm nay
+/(study)                                        → Route group full-screen (không AppShell)
+  /study/[deckId]                               → Phiên học tập
+  /study/[deckId]?mode=review                   → Ôn lại toàn bộ thẻ (kể cả đã thuộc)
 ```
 
 ---
@@ -333,7 +338,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
 
 ## 9. Quy tắc phát triển (Development Rules)
 
-- **Zustand Store**: `useStudyStore` quản lý `isFlipped`, `currentIndex`, `sessionCards`, action `rateCard(rating)`. `useUIStore` quản lý sidebar state.
+- **Zustand Store**: `useStudyStore` quản lý `isFlipped`, `currentIndex`, `sessionCards`, `ratingStats`, actions `flipCard()`, `unflipCard()`, `rateCard(rating)`, `setSession()`, `reset()`. `useUIStore` quản lý sidebar state.
 - **Server Components**: Ưu tiên fetching dữ liệu ở Server Component, chỉ dùng Client Component khi cần interactivity.
 - **Server Actions**: Dùng cho mutations (create/update/delete card, deck) thay vì API routes.
 - **Form Validation**: Dùng `zod` schema + `react-hook-form`, error message bằng **tiếng Việt**.

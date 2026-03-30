@@ -1,4 +1,4 @@
-import { CalendarDays, ChevronRight } from 'lucide-react';
+import { BookOpen, CalendarDays, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 
 import { AnimatedProgress } from '@/components/ui/animated-progress';
@@ -36,7 +36,7 @@ function DeckDetailHeader({ deck }: Props) {
   return (
     <div className="mb-10">
       {/* Breadcrumb */}
-      <nav className="mb-6 flex items-center gap-2 text-xs font-medium text-slate-500">
+      <nav className="mb-3 flex items-center gap-2 text-xs font-medium text-slate-500">
         <Link
           href="/library"
           className="transition-colors hover:text-emerald-600"
@@ -50,9 +50,12 @@ function DeckDetailHeader({ deck }: Props) {
       {/* Page Header */}
       <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="text-on-surface mb-2 text-3xl font-black tracking-tight">
-            Chi tiết bộ thẻ: {name}
-          </h1>
+          <div className="mb-2 flex items-center gap-2.5">
+            <BookOpen className="h-6 w-6 text-emerald-600" />
+            <h1 className="text-on-surface text-3xl font-black tracking-tight">
+              Chi tiết bộ thẻ: {name}
+            </h1>
+          </div>
           <div className="flex flex-wrap items-center gap-4">
             <span className="bg-surface-input rounded-full px-3 py-1 text-[11px] font-bold tracking-widest text-emerald-700 uppercase">
               {card_count} THẺ
@@ -68,7 +71,7 @@ function DeckDetailHeader({ deck }: Props) {
         </div>
 
         <div className="flex shrink-0 items-center gap-3">
-          {due_count > 0 && (
+          {due_count > 0 ? (
             <Button
               asChild
               variant="outline"
@@ -79,6 +82,17 @@ function DeckDetailHeader({ deck }: Props) {
                 Học ngay ({due_count} thẻ cần ôn)
               </Link>
             </Button>
+          ) : (
+            card_count > 0 && (
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="border-slate-200 text-slate-600 hover:bg-slate-50"
+              >
+                <Link href={`/study/${id}?mode=review`}>Ôn lại bộ này</Link>
+              </Button>
+            )
           )}
           <Button
             asChild

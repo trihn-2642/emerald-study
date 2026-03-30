@@ -13,6 +13,7 @@ interface StudyState {
 interface StudyActions {
   setSession: (cards: Flashcard[]) => void;
   flipCard: () => void;
+  unflipCard: () => void;
   nextCard: () => void;
   /**
    * Rate the current card.
@@ -42,6 +43,8 @@ export const useStudyStore = create<StudyState & StudyActions>((set, get) => ({
     }),
 
   flipCard: () => set({ isFlipped: true }),
+
+  unflipCard: () => set({ isFlipped: false }),
 
   nextCard: () =>
     set((s) => ({ currentIndex: s.currentIndex + 1, isFlipped: false })),
