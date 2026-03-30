@@ -26,5 +26,11 @@ export default async function StudyPage({ params, searchParams }: Props) {
     redirect(`/library/${deckId}/cards`);
   }
 
-  return <StudySession initialCards={result.cards} deck={result.deck} />;
+  return (
+    <StudySession
+      initialCards={result.cards}
+      deck={result.deck}
+      mode={isReviewAll ? 'review' : 'due'}
+    />
+  );
 }

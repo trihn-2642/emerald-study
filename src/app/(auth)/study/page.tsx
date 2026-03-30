@@ -23,11 +23,19 @@ export default async function StudyListPage() {
     <div className="p-4 md:p-6">
       {/* Header */}
       <div className="mb-8">
-        <div className="mb-1 flex items-center gap-2.5">
-          <GraduationCap className="h-6 w-6 text-emerald-600" />
-          <h1 className="text-on-surface text-3xl font-black tracking-tight">
-            Phiên học hôm nay
-          </h1>
+        <div className="mb-1 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2.5">
+            <GraduationCap className="h-6 w-6 text-emerald-600" />
+            <h1 className="text-on-surface text-3xl font-black tracking-tight">
+              Phiên học hôm nay
+            </h1>
+          </div>
+          <Link
+            href="/study/history"
+            className="text-sm font-semibold text-emerald-600 hover:underline"
+          >
+            Lịch sử →
+          </Link>
         </div>
         <p className="text-sm text-slate-400">
           {totalDue > 0

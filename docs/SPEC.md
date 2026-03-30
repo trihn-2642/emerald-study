@@ -83,6 +83,25 @@
 
 > Khi tạo thẻ mới, khởi tạo bằng `createEmptyCard()` từ `ts-fsrs` và set `next_review = now()`.
 
+### Interface `StudySession`:
+
+- `id`: uuid
+- `user_id`: uuid (FK → auth.users)
+- `deck_id`: uuid (FK → decks)
+- `started_at`: timestamp (UTC) — khi bắt đầu session
+- `ended_at`: timestamp (UTC) — khi `SessionComplete` render
+- `duration_sec`: number — `ended_at - started_at` tính bằng giây
+- `cards_total`: number — số thẻ trong queue lúc khởi tạo session
+- `cards_reviewed`: number — số thẻ đã chấm điểm (không đếm lại khi bấm "Lại")
+- `correct_count`: number — số thẻ được rating Good (3) hoặc Easy (4)
+- `mode`: `'due' | 'review'` — `'due'` khi học thẻ đến hạn; `'review'` khi `?mode=review`
+- `rating_breakdown`: `{ again: number; hard: number; good: number; easy: number }` — phân loại theo từng nút
+
+**Computed fields (không lưu DB):**
+
+- `accuracy_percent` = `correct_count / cards_reviewed * 100` (làm tròn)
+- `session_label`: `'Chưa thuộc'` nếu accuracy < 70%; `'Ôn tập'` nếu mode='review'; `'Mới'` nếu mode='due'
+
 ---
 
 ## 4. Chức năng chính (Core Features)
@@ -198,6 +217,65 @@
 
 - **Add** (`/library/[deckId]/cards/new`): Form tạo thẻ mới với preview realtime bên phải, deck pre-selected theo URL.
 - **Edit** (`/library/[deckId]/cards/[cardId]/edit`): Load card data, cho phép chỉnh sửa content fields (không reset `fsrs_data`).
+
+### G. Lịch sử phiên học (Study History)
+
+#### Lưu session khi hoàn thành
+
+- `useStudyStore` thêm `sessionStartedAt: Date | null` — set khi `setSession()` được gọi.
+- `SessionComplete` (client component) dùng `useEffect` + `useRef(false)` để gọi `saveStudySession` Server Action **đúng một lần** khi mount.
+- `saveStudySession` nhận payload `StudySessionPayload` và insert vào bảng `study_sessions`.
+- Nếu session bị interrupt (user đóng tab / back trước khi xong) → không lưu (acceptable loss).
+
+#### Trang `/study/history`
+
+- **Server Component** với `<Suspense>` cho stats row + table.
+- **Filters (client-side state):**
+  - Deck filter: shadcn `<Select>` — options "Tất cả bộ thẻ" + danh sách deck của user.
+  - Period filter: toggle buttons "Tuần này" / "Tháng này" / "Tất cả".
+- **Summary stats row** (3 cards):
+  1. **Tổng thời gian học** — `sum(duration_sec) / 3600` → `XX giờ`, `<Progress>` emerald.
+  2. **Số thẻ đã ôn** — `sum(cards_reviewed)`, trend so sánh với kỳ trước (±%).
+  3. **Độ chính xác trung bình** — `avg(correct_count / cards_reviewed * 100)` → `XX%`, progress bar phân đoạn.
+- **Bảng "Chi tiết phiên học"** — nút "Xuất báo cáo" (placeholder):
+
+  | Cột          | Nội dung                                             |
+  | ------------ | ---------------------------------------------------- |
+  | Bộ thẻ       | Icon ngôn ngữ + tên deck + mô tả (truncated)         |
+  | Thời gian    | `dayjs(started_at).format('HH:mm DD/MM')`            |
+  | Thời lượng   | `duration_sec` → "X phút" / "X giờ Y phút"           |
+  | Thẻ đã ôn    | `cards_reviewed/cards_total` + `session_label` badge |
+  | Độ chính xác | Progress bar màu theo ngưỡng + `accuracy_percent%`   |
+  | Hành động    | Nút "Học lại" → `/study/[deckId]`                    |
+
+- **Badge màu `session_label`:**
+  - `'Chưa thuộc'` → `bg-red-50 text-red-500`
+  - `'Ôn tập'` → `bg-emerald-50 text-emerald-600`
+  - `'Mới'` → `bg-sky-50 text-sky-600`
+- **Progress bar màu độ chính xác:** ≥ 80% emerald, 60–79% amber, < 60% red.
+- **Pagination**: server-side, `page` + `limit=10` qua URL search params. Footer: "Hiện thị X trong tổng số Y phiên học" + nút `<` `>`.
+- **Empty state**: khi chưa có phiên học nào, hiển thị illustration + nút "Bắt đầu học".
+
+### H. Thống kê (Statistics)
+
+- **Trang `/thong-ke`** — Server Component với `<Suspense>` cho mỗi section.
+- **Header section** (stats tổng quan — 4 cards):
+  1. Tổng thời gian học (all-time)
+  2. Tổng thẻ đã ôn (all-time)
+  3. Streak hiện tại (ngày)
+  4. Độ chính xác trung bình (all-time)
+- **Heatmap học tập**: 52 tuần gần nhất (dạng GitHub contribution graph). Mỗi ô = 1 ngày. Màu intensity dựa trên `sum(cards_reviewed)`. Dùng CSS grid thuần, không cần thư viện ngoài. Tối đa 4 mức màu emerald.
+- **Phân bổ FSRS state** (bar chart đơn giản bằng Tailwind + CSS):
+  - 4 trạng thái: Mới (state=0), Đang học (state=1), Ôn tập (state=2), Học lại (state=3).
+  - Mỗi state = 1 row với label + số thẻ + bar rộng tỉ lệ.
+- **Thống kê theo bộ thẻ** (table):
+  - Columns: Tên deck | Tổng thẻ | Đã thuộc % | Tổng phiên học | Độ chính xác TB | Lần học cuối.
+  - Sort: mặc định theo "Lần học cuối" giảm dần.
+- **Data fetching** (`src/lib/data/statistics.ts`):
+  - `getOverallStats(userId)`: tổng hợp từ `study_sessions` + `flashcards` + `decks`.
+  - `getActivityHeatmap(userId)`: `study_sessions` nhóm theo ngày, 365 ngày gần nhất.
+  - `getFsrsStateBreakdown(userId)`: count flashcards theo `fsrs_data->>'state'`.
+  - `getDeckStats(userId)`: join `decks` + `flashcards` + `study_sessions`.
 - **Delete**: Confirmation dialog trong trang Edit, redirect về `/library/[deckId]/cards` sau khi xóa.
 - Form validation bằng `zod` + `react-hook-form` (`mode: 'all'`, `reValidateMode: 'onChange'`), lỗi hiển thị inline bằng tiếng Việt.
 - Examples: tối đa 5, dùng `useFieldArray`.
@@ -263,6 +341,35 @@ create policy "Users manage own flashcards"
   on flashcards for all using (auth.uid() = user_id);
 ```
 
+### Table: `study_sessions`
+
+```sql
+create table study_sessions (
+  id                uuid primary key default gen_random_uuid(),
+  user_id           uuid not null references auth.users(id) on delete cascade,
+  deck_id           uuid not null references decks(id) on delete cascade,
+  started_at        timestamptz not null,
+  ended_at          timestamptz not null,
+  duration_sec      integer not null default 0,
+  cards_total       integer not null default 0,
+  cards_reviewed    integer not null default 0,
+  correct_count     integer not null default 0,
+  mode              text not null check (mode in ('due', 'review')) default 'due',
+  rating_breakdown  jsonb not null default '{"again":0,"hard":0,"good":0,"easy":0}'::jsonb
+);
+
+alter table study_sessions enable row level security;
+create policy "Users manage own sessions"
+  on study_sessions for all using (auth.uid() = user_id);
+```
+
+> Index gợi ý để tăng tốc query lịch sử và thống kê:
+>
+> ```sql
+> create index idx_study_sessions_user_started on study_sessions (user_id, started_at desc);
+> create index idx_study_sessions_deck on study_sessions (deck_id);
+> ```
+
 ---
 
 ## 6. Route Map
@@ -281,6 +388,9 @@ create policy "Users manage own flashcards"
 /(study)                                        → Route group full-screen (không AppShell)
   /study/[deckId]                               → Phiên học tập
   /study/[deckId]?mode=review                   → Ôn lại toàn bộ thẻ (kể cả đã thuộc)
+/(auth)
+  /study/history                                → Lịch sử phiên học (có AppShell)
+  /thong-ke                                     → Thống kê tổng quan
 ```
 
 ---

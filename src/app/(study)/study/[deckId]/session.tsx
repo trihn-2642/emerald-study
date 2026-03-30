@@ -15,9 +15,10 @@ import type { Deck, Flashcard } from '@/types';
 type Props = {
   initialCards: Flashcard[];
   deck: Deck;
+  mode: 'due' | 'review';
 };
 
-export function StudySession({ initialCards, deck }: Props) {
+export function StudySession({ initialCards, deck, mode }: Props) {
   const {
     sessionCards,
     currentIndex,
@@ -139,6 +140,8 @@ export function StudySession({ initialCards, deck }: Props) {
     return (
       <SessionComplete
         deckName={deck.name}
+        deckId={deck.id}
+        mode={mode}
         totalCards={initialCards.length}
         ratingStats={ratingStats}
         onStudyAgain={handleStudyAgain}
