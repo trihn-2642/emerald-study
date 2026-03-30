@@ -2,13 +2,17 @@
 
 import { RotateCcw } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Confetti from 'react-confetti';
 
 import { Button } from '@/components/ui/button';
+import { saveStudySession } from '@/lib/data/history';
+import { useStudyStore } from '@/store/useStudyStore';
 
 type Props = {
   deckName: string;
+  deckId: string;
+  mode: 'due' | 'review';
   totalCards: number;
   ratingStats: Record<number, number>;
   onStudyAgain: () => void;
@@ -23,10 +27,44 @@ const RATING_LABELS: Record<number, { label: string; className: string }> = {
 
 export function SessionComplete({
   deckName,
+  deckId,
+  mode,
   totalCards,
   ratingStats,
   onStudyAgain,
 }: Props) {
+  const sessionStartedAt = useStudyStore((s) => s.sessionStartedAt);
+  const hasSaved = useRef(false);
+
+  // Save session exactly once when this screen mounts
+  useEffect(() => {
+    if (hasSaved.current || !sessionStartedAt) return;
+    hasSaved.current = true;
+
+    const endedAt = new Date();
+    const again = ratingStats[1] ?? 0;
+    const hard = ratingStats[2] ?? 0;
+    const good = ratingStats[3] ?? 0;
+    const easy = ratingStats[4] ?? 0;
+    // cards_reviewed = unique cards finished (Hard+Good+Easy, not re-queued Again)
+    const cardsReviewed = hard + good + easy;
+
+    saveStudySession({
+      deck_id: deckId,
+      started_at: sessionStartedAt.toISOString(),
+      ended_at: endedAt.toISOString(),
+      duration_sec: Math.round(
+        (endedAt.getTime() - sessionStartedAt.getTime()) / 1000,
+      ),
+      cards_total: totalCards,
+      cards_reviewed: cardsReviewed,
+      correct_count: good + easy,
+      mode,
+      rating_breakdown: { again, hard, good, easy },
+    }).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const [dimensions] = useState(() => {
     if (typeof window === 'undefined') return { width: 0, height: 0 };
     return { width: window.innerWidth, height: window.innerHeight };

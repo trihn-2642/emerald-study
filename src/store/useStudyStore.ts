@@ -8,6 +8,8 @@ interface StudyState {
   isFlipped: boolean;
   /** rating (1–4) → how many times it was chosen this session */
   ratingStats: Record<number, number>;
+  /** timestamp when setSession() was called — used for session duration */
+  sessionStartedAt: Date | null;
 }
 
 interface StudyActions {
@@ -29,6 +31,7 @@ const initialState: StudyState = {
   currentIndex: 0,
   isFlipped: false,
   ratingStats: {},
+  sessionStartedAt: null,
 };
 
 export const useStudyStore = create<StudyState & StudyActions>((set, get) => ({
@@ -40,6 +43,7 @@ export const useStudyStore = create<StudyState & StudyActions>((set, get) => ({
       currentIndex: 0,
       isFlipped: false,
       ratingStats: {},
+      sessionStartedAt: new Date(),
     }),
 
   flipCard: () => set({ isFlipped: true }),
