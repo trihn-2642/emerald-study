@@ -44,9 +44,7 @@ export function Sidebar() {
         {mainNavItems.map(({ href, label, icon: Icon }) => {
           const isActive =
             pathname === href ||
-            (href !== '/study' &&
-              href !== '/stats' &&
-              pathname.startsWith(href + '/'));
+            (href !== '/stats' && pathname.startsWith(href + '/'));
           return (
             <Link
               key={href}

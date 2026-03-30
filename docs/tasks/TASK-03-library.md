@@ -172,7 +172,7 @@ deleteDeck(deckId: string): Promise<{ error: string } | { success: true }>
 
 - [x] `DeckDetailHeader` hiển thị 4 stats: tổng thẻ, due, mới, mastery%
 - [x] Back button "← Thư viện" với Link về `/library`
-- [x] Nút "Học ngay (N)" link đến `/study/[deckId]` khi có due cards
+- [x] Nút "Học ngay (N)" link đến `/study/[deckId]` khi có due cards; "Ôn lại bộ này" → `/study/[deckId]?mode=review` khi due=0
 - [x] `FlashcardTable` hiển thị đủ columns: front, pinyin, meaning_vn, state badge, next_review, edit icon
 - [x] Sort: Ngày ôn / Từ A-Z / Trạng thái
 - [x] Tìm kiếm theo `front`, `pinyin`, hoặc `meaning_vn` realtime

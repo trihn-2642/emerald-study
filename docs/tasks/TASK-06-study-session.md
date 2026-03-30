@@ -1,206 +1,244 @@
 # Task 06: Study Session – Phiên học tập
 
-## 📌 Trạng thái: CHƯA TRIỂN KHAI
-
-Store (`useStudyStore`) và route `/study/[deckId]` chưa được tạo. Các nút "Học ngay" trên Dashboard và Deck Detail hiện link đến `/study/[deckId]` nhưng trang này chưa tồn tại.
+## ✅ Trạng thái: HOÀN THÀNH
 
 ---
 
 ## 🎯 Mục tiêu
 
-Xây dựng toàn bộ luồng học tập: màn hình flashcard với animation lật thẻ 3D, 4 nút chấm điểm FSRS, chuyển thẻ mượt mà, màn hình hoàn thành với confetti. Đây là tính năng cốt lõi của ứng dụng.
+Xây dựng toàn bộ luồng học tập: màn hình danh sách phiên học, flashcard với animation lật thẻ 3D, 4 nút chấm điểm FSRS, điều hướng lịch sử thẻ, chuyển thẻ mượt mà, màn hình hoàn thành với confetti. Đây là tính năng cốt lõi của ứng dụng.
 
 ---
 
-## 📁 Các file cần tạo / sửa
+## 📁 Các file đã tạo / sửa
 
 ### Tạo mới
 
-| File                                        | Mô tả                                                  |
-| ------------------------------------------- | ------------------------------------------------------ |
-| `src/app/(auth)/study/[deckId]/page.tsx`    | Server Component: load session cards, khởi tạo store   |
-| `src/app/(auth)/study/[deckId]/session.tsx` | Client Component: toàn bộ UI phiên học ("use client")  |
-| `src/components/study/FlashcardView.tsx`    | Thẻ flashcard với flip animation 3D (Framer Motion)    |
-| `src/components/study/CardFront.tsx`        | Mặt trước thẻ: hiển thị `front` (chữ Hán/từ vựng Anh)  |
-| `src/components/study/CardBack.tsx`         | Mặt sau thẻ: pinyin, meaning_vn, meaning_en, examples  |
-| `src/components/study/RatingButtons.tsx`    | 4 nút chấm điểm: Lại / Khó / Tốt / Dễ                  |
-| `src/components/study/SessionProgress.tsx`  | Progress bar + "X / Y thẻ" ở header phiên học          |
-| `src/components/study/SessionComplete.tsx`  | Màn hình hoàn thành: thống kê + confetti + nút quay về |
-| `src/components/study/StudyHeader.tsx`      | Header: nút thoát, tên deck, progress                  |
-| `src/lib/data/study.ts`                     | Fetch due cards, update card sau khi rate              |
-| `src/lib/fsrs.ts`                           | Wrapper cho `ts-fsrs`: hàm `rateCard(card, rating)`    |
+| File                                         | Mô tả                                                           |
+| -------------------------------------------- | --------------------------------------------------------------- |
+| `src/app/(auth)/study/page.tsx`              | Trang danh sách phiên học: decks cần ôn hôm nay + đã hoàn thành |
+| `src/app/(study)/layout.tsx`                 | Route group layout không có AppShell (full-screen)              |
+| `src/app/(study)/study/[deckId]/page.tsx`    | Server Component: load session cards, hỗ trợ `?mode=review`     |
+| `src/app/(study)/study/[deckId]/session.tsx` | Client Component: toàn bộ UI phiên học                          |
+| `src/components/study/FlashcardView.tsx`     | Thẻ flashcard với flip animation 3D (Framer Motion)             |
+| `src/components/study/CardFront.tsx`         | Mặt trước thẻ: hiển thị `front` (chữ Hán/từ vựng Anh)           |
+| `src/components/study/CardBack.tsx`          | Mặt sau thẻ: pinyin, meaning_vn, meaning_en, examples           |
+| `src/components/study/RatingButtons.tsx`     | 4 nút chấm điểm: Lại / Khó / Tốt / Dễ                           |
+| `src/components/study/SessionComplete.tsx`   | Màn hình hoàn thành: thống kê + confetti + nút quay về          |
+| `src/components/study/StudyHeader.tsx`       | Header: nút thoát, tên deck, progress, điều hướng lịch sử       |
+| `src/lib/data/study.ts`                      | `getDueCards`, `getAllCards`, `updateCardAfterRating`           |
+| `src/lib/fsrs.ts`                            | Wrapper cho `ts-fsrs`: hàm `scheduleCard(data, rating)`         |
 
 ### Sửa
 
-| File                         | Thay đổi                                                  |
-| ---------------------------- | --------------------------------------------------------- |
-| `src/store/useStudyStore.ts` | Thêm action `rateCard(rating)` gọi FSRS + Supabase update |
+| File                         | Thay đổi                           |
+| ---------------------------- | ---------------------------------- |
+| `src/store/useStudyStore.ts` | Thêm `unflipCard()`, `ratingStats` |
 
 ---
 
 ## 🏗️ Chi tiết kỹ thuật
 
+### Route Architecture
+
+```
+(auth)/study/page.tsx          → /study         — danh sách decks (AppShell)
+(study)/study/[deckId]/page.tsx → /study/[id]   — phiên học (full-screen, không AppShell)
+```
+
+Route group `(study)` có layout riêng không dùng AppShell, giữ màn học tập full-screen.
+
+### `/study` List Page
+
+Server Component. Gọi `getDueDecks(userId)` rồi chia thành:
+
+- `dueDecks` (due_count > 0): hiển thị section "Cần ôn hôm nay", card có border xanh + nút "Học ngay" → `/study/[id]`
+- `doneDecks` (due_count === 0 && card_count > 0): section "Đã hoàn thành — ôn lại nếu muốn", nút "Ôn lại" → `/study/[id]?mode=review`
+
+```typescript
+const dueDecks = allDecks.filter((d) => d.due_count > 0);
+const doneDecks = allDecks.filter((d) => d.due_count === 0 && d.card_count > 0);
+```
+
+### `?mode=review` Support
+
+Server Component `page.tsx` đọc `searchParams`:
+
+```typescript
+const isReviewAll = mode === 'review';
+const result = isReviewAll
+  ? await getAllCards(deckId)
+  : await getDueCards(deckId);
+```
+
+- `getDueCards()`: load thẻ `next_review <= now`, sắp xếp theo `next_review ASC`
+- `getAllCards()`: load tất cả thẻ trong deck, sắp xếp theo `created_at ASC`
+
+### `src/lib/fsrs.ts` — scheduleCard
+
+```typescript
+export function scheduleCard(
+  data: FsrsData,
+  rating: Rating,
+): { nextData: FsrsData; nextReview: string };
+```
+
+⚠️ **Quan trọng**: Thẻ mới (state=0 hoặc reps=0) phải dùng `createEmptyCard()` thay vì map từ DB values. DB có thể lưu `difficulty=5.3` từ `DIFFICULTY_MAP` khi tạo thẻ, nhưng stability=0 là trạng thái không hợp lệ với ts-fsrs.
+
+```typescript
+const isNew = data.state === 0 || data.reps === 0;
+const card = isNew ? createEmptyCard() : { ...mapFromDb };
+```
+
+### `useStudyStore` — State & Actions
+
+```typescript
+interface StudyState {
+  sessionCards: Flashcard[];
+  currentIndex: number;
+  isFlipped: boolean;
+  ratingStats: Record<number, number>; // { 1: 2, 3: 5, 4: 1 } — breakdown per rating
+}
+
+interface StudyActions {
+  setSession: (cards: Flashcard[]) => void;
+  flipCard: () => void;
+  unflipCard: () => void; // ← thêm mới
+  nextCard: () => void;
+  rateCard: (rating: 1 | 2 | 3 | 4) => void;
+  reset: () => void;
+}
+```
+
+`rateCard` logic:
+
+- `rating === 1` (Again): push card xuống cuối queue, `currentIndex + 1`
+- `rating 2/3/4`: chỉ `currentIndex + 1`
+- Cập nhật `ratingStats` mỗi lần rate
+
+### Back-Navigation (History Review)
+
+`session.tsx` dùng `viewingIndex: number | null` state riêng (không nằm trong store):
+
+- `null`: đang xem thẻ hiện tại (có thể rate)
+- `number`: đang xem lại thẻ đã học (read-only, không hiện RatingButtons)
+
+```
+handleBack()    → viewingIndex = displayIndex - 1
+handleForward() → viewingIndex = displayIndex + 1 (hoặc null nếu về current)
+```
+
+`StudyHeader` hiển thị "Xem lại" badge khi `isReviewing`, và `<` `>` buttons.
+
+### isRatingRef + stateRef (React 19 Anti-double-fire Fix)
+
+Dùng `useRef` thay `useState` để tránh React 19 batching gọi double `handleRate`:
+
+```typescript
+const isRatingRef = useRef(false);  // không dùng useState
+const stateRef = useRef({ sessionCards, currentIndex, isFlipped, viewingIndex });
+stateRef.current = { ... };  // luôn cập nhật ref với giá trị mới nhất
+```
+
 ### Flip Animation (Framer Motion)
 
-```typescript
-// FlashcardView.tsx - CSS 3D perspective flip
-const variants = {
-  front: { rotateY: 0 },
-  back: { rotateY: 180 },
-};
-
-// Parent: style={{ perspective: 1000 }}
-// Card:   transformStyle: "preserve-3d"
-// Back face: style={{ rotateY: 180 }}  ← counter-rotate để text thẳng
+```
+FlashcardView
+  └── perspective: 1000px
+      └── card div: transformStyle preserve-3d, rotateY transition
+          ├── CardFront: z-index front face
+          └── CardBack: rotateY(180deg) pre-rotated, backfaceVisibility hidden
 ```
 
-### Card Transition Animation
+Click thẻ: `flipCard()` → `isFlipped = true`. Không flip ngược lại khi click (chỉ `unflipCard()` từ store hoặc Space).
 
-```typescript
-// Khi chuyển sang thẻ tiếp theo:
-// Thẻ cũ: x: 0 → x: -100vw, opacity: 1 → 0
-// Thẻ mới: x: 100vw → x: 0, opacity: 0 → 1
-// Dùng AnimatePresence với key={currentIndex}
-```
+### Keyboard Shortcuts
 
-### Rating Buttons (4 nút)
+| Key                   | Action                                                     |
+| --------------------- | ---------------------------------------------------------- |
+| `Space`               | Lật thẻ (nếu chưa lật) / unflip (nếu đã lật)               |
+| `1` / `2` / `3` / `4` | Chấm điểm (chỉ khi thẻ đã lật + không đang review lịch sử) |
+| `←`                   | Xem thẻ trước (history back)                               |
+| `→`                   | Xem thẻ tiếp theo (history forward)                        |
 
-```typescript
-interface RatingConfig {
-  label: string; // "Lại" | "Khó" | "Tốt" | "Dễ"
-  rating: Rating; // ts-fsrs Rating enum: Again=1, Hard=2, Good=3, Easy=4
-  interval: string; // "1p" | "2d" | "4d" | "7d" (hint text)
-  color: string; // destructive | warning | default | emerald
-}
-```
+### SessionComplete
 
-### `src/lib/fsrs.ts`
+- `react-confetti` khi hoàn thành
+- Stats: tổng thẻ + breakdown rating (Lại/Khó/Tốt/Dễ) từ `ratingStats`
+- Nút **"Học lại bộ này"**: reset session với `initialCards` (shuffle lại)
+- Nút **"Về Phiên học"**: `href="/study"` (không về `/dashboard`)
+
+### Data Fetching
 
 ```typescript
-import { createEmptyCard, fsrs, generatorParameters, Rating } from 'ts-fsrs';
-
-const f = fsrs(generatorParameters({ enable_fuzz: true }));
-
-// ⚠️ Đặt tên khác store action "rateCard" để tránh naming conflict
-export function scheduleCard(
-  card: FsrsData,
-  rating: Rating,
-): {
-  nextCard: FsrsData;
-  nextReview: Date;
-} {
-  const fsrsCard = mapToFsrsCard(card);
-  const result = f.next(fsrsCard, new Date(), rating);
-  return {
-    nextCard: mapFromFsrsCard(result.card),
-    nextReview: result.card.due,
-  };
-}
+getDueCards(deckId): Promise<StudySession | null>
+getAllCards(deckId): Promise<StudySession | null>
+updateCardAfterRating(cardId, fsrsData, nextReview): Promise<void>
 ```
 
-### `useStudyStore` – rateCard action
-
-```typescript
-rateCard: async (rating: Rating) => {
-  const { sessionCards, currentIndex } = get();
-  const card = sessionCards[currentIndex];
-
-  // 1. Tính FSRS next state (gọi scheduleCard để tránh naming conflict)
-  const { nextCard, nextReview } = scheduleCard(card.fsrs_data, rating);
-
-  // 2. Nếu rating === Again (1): đẩy xuống cuối queue
-  if (rating === Rating.Again) {
-    set({ isFlipped: false, sessionCards: [...sessionCards, card] });
-  }
-
-  // 3. Update Supabase (optimistic)
-  await updateCardInSupabase(card.id, {
-    fsrs_data: nextCard,
-    next_review: nextReview,
-  });
-
-  // 4. Chuyển sang thẻ tiếp theo
-  set({ isFlipped: false, currentIndex: currentIndex + 1 });
-};
-```
-
-### CardBack Layout
-
-```
-┌─────────────────────────────┐
-│  学习          ← front      │
-│  xué xí        ← pinyin     │
-├─────────────────────────────┤
-│  Học tập       ← meaning_vn │
-│  To study/learn← meaning_en │
-├─────────────────────────────┤
-│  Ví dụ:                     │
-│  我每天学习中文。            │
-│  Wǒ měitiān xuéxí zhōngwén. │
-│  Tôi học tiếng Trung mỗi ngày│
-└─────────────────────────────┘
-```
-
-### SessionComplete Screen
-
-- Hiển thị `react-confetti` khi hoàn thành
-- Stats: Số thẻ đã học, Phân bổ rating (Lại/Khó/Tốt/Dễ)
-- Nút "Về Dashboard" và "Học lại bộ này"
+`getDueCards` và `getAllCards` đều wrapped với `React.cache()`. Cả hai đều tính `mastery_percent` parallel.
 
 ---
 
 ## ✅ Checklist hoàn thành
 
+### /study List Page
+
+- [x] Server Component, dùng `getDueDecks(userId)`
+- [x] Section "Cần ôn hôm nay" với due decks
+- [x] Section "Đã hoàn thành" với done decks + link `?mode=review`
+- [x] Empty state khi không có deck nào
+- [x] Header đồng bộ (icon `GraduationCap` + `text-3xl font-black`)
+- [x] Sidebar "Phiên học" active khi ở `/study/[deckId]`
+
 ### FlashcardView & Animation
 
-- [ ] Flip animation 3D theo trục Y mượt mà (duration ~0.5s)
-- [ ] Mặt sau không bị mirror (counter-rotate đúng)
-- [ ] Click vào thẻ khi chưa flip → flip thẻ
-- [ ] Click vào thẻ khi đã flip → không flip lại (chỉ nút rating mới tiếp tục)
-- [ ] Card transition: slide-out trái, slide-in phải khi chuyển thẻ
+- [x] Flip animation 3D theo trục Y mượt mà
+- [x] Mặt sau không bị mirror (counter-rotate đúng)
+- [x] Click vào thẻ khi chưa flip → flip thẻ
+- [x] Back-navigation read-only không cho phép rate
 
 ### CardFront
 
-- [ ] Chữ Hán hiển thị font lớn (≥ 48px), cân giữa
-- [ ] Nếu là tiếng Anh: hiển thị từ vựng + icon ngôn ngữ
-- [ ] Prompt "Nhấn để xem đáp án" ở phía dưới
+- [x] Chữ Hán hiển thị font lớn, cân giữa
+- [x] Tiếng Anh: hiển thị từ vựng + ngôn ngữ badge
+- [x] Prompt "Nhấn để xem đáp án"
 
 ### CardBack
 
-- [ ] Hiển thị pinyin (nếu có) với màu nhạt hơn
-- [ ] `meaning_vn` nổi bật, `meaning_en` phụ
-- [ ] Ví dụ: hiển thị tối đa 2 examples, có thể scroll
-- [ ] Không hiển thị ví dụ nếu `examples` rỗng
+- [x] Pinyin / meaning_vn / meaning_en
+- [x] Danh sách examples
 
 ### RatingButtons
 
-- [ ] 4 nút xuất hiện chỉ sau khi flip thẻ
-- [ ] Mỗi nút có label + interval hint ("Tốt · 4 ngày")
-- [ ] Màu đúng: Lại=đỏ, Khó=vàng, Tốt=xanh dương, Dễ=emerald
-- [ ] Sau khi nhấn: gọi `rateCard()`, chuyển thẻ tiếp theo
-- [ ] Disable nút khi đang xử lý (loading state)
-
-### SessionProgress
-
-- [ ] Progress bar cập nhật sau mỗi thẻ
-- [ ] Hiển thị "X / Y" số thẻ
+- [x] 4 nút xuất hiện chỉ sau khi flip + không đang review lịch sử
+- [x] Label + interval hint ("Tốt · 4 ngày")
+- [x] Màu đúng: Lại=đỏ, Khó=vàng, Tốt=xanh, Dễ=emerald
 
 ### FSRS Logic
 
-- [ ] `rateCard()` tính đúng next state dựa trên `ts-fsrs`
-- [ ] `next_review` được cập nhật lên Supabase sau mỗi lần rate
-- [ ] Rating=1 (Lại) đưa thẻ vào cuối queue hiện tại (không kết thúc session)
+- [x] `scheduleCard()` tính đúng với `createEmptyCard()` cho thẻ mới
+- [x] `updateCardAfterRating()` cập nhật Supabase
+- [x] Rating=1 re-queue thẻ vào cuối
+
+### Back-Navigation
+
+- [x] `viewingIndex` state trong session.tsx
+- [x] `handleBack()` / `handleForward()` điều hướng lịch sử
+- [x] RatingButtons ẩn khi `isReviewing`
+- [x] "Xem lại" badge + `<` `>` buttons trong StudyHeader
+- [x] "Quay lại thẻ hiện tại" button
 
 ### SessionComplete
 
-- [ ] Confetti animation khi hoàn thành (`react-confetti`)
-- [ ] Hiển thị summary: tổng thẻ, breakdown theo rating
-- [ ] Nút "Về Dashboard" navigate về `/dashboard`
-- [ ] Nút "Học lại" reset session với các thẻ rated Again
+- [x] Confetti animation
+- [x] Stats breakdown theo rating
+- [x] Nút "Về Phiên học" → `/study`
+- [x] Nút "Học lại bộ này"
 
 ### General
 
-- [ ] Vuốt sang trái/phải (swipe) trên mobile để rate (optional, nếu có thời gian)
-- [ ] Keyboard shortcuts: Space=flip, 1/2/3/4=rating (desktop)
-- [ ] Không thể back browser để tránh mất session state
-- [ ] Không có lỗi TypeScript
+- [x] Keyboard shortcuts: Space, 1/2/3/4, ←, →
+- [x] `useRef` để tránh double-fire (React 19)
+- [x] `?mode=review` load toàn bộ thẻ
+- [x] Không có lỗi TypeScript

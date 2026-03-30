@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 
-import { DeckDetailHeader } from '@/components/library/DeckDetailHeader';
-import { FlashcardTable } from '@/components/library/FlashcardTable';
+import { DeckDetailHeader } from '@/components/cards/DeckDetailHeader';
+import { FlashcardTable } from '@/components/cards/FlashcardTable';
 import { getDeckById, getFlashcardsByDeck } from '@/lib/data/library';
 import { getUser } from '@/lib/supabase/server';
 

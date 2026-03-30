@@ -157,8 +157,8 @@ Chỉ dùng thêm Tailwind Emerald scale theo nhu cầu: `emerald-500`, `emerald
 
 ### Zustand Store
 
-- [x] `useStudyStore` có state: `isFlipped`, `currentIndex`, `sessionCards: Flashcard[]`
-- [x] `useStudyStore` có actions: `flipCard()`, `nextCard()`, `setSession(cards)`, `reset()`
+- [x] `useStudyStore` có state: `isFlipped`, `currentIndex`, `sessionCards: Flashcard[]`, `ratingStats: Record<number, number>`
+- [x] `useStudyStore` có actions: `flipCard()`, `unflipCard()`, `nextCard()`, `setSession(cards)`, `rateCard(rating)`, `reset()`
 - [x] `useUIStore` có state: `isSidebarOpen`, actions: `toggleSidebar()`
 
 ### Layout & Components

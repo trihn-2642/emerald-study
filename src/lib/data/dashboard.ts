@@ -20,12 +20,14 @@ export async function getTodayStats(userId: string): Promise<TodayStats> {
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
 
-  const { count: total } = await supabase
+  // Cards still due right now (not yet reviewed today)
+  const { count: stillDue } = await supabase
     .from('flashcards')
     .select('id', { count: 'exact', head: true })
     .eq('user_id', userId)
     .lte('next_review', new Date().toISOString());
 
+  // Cards reviewed today
   const { count: reviewed } = await supabase
     .from('flashcards')
     .select('id', { count: 'exact', head: true })
@@ -38,9 +40,14 @@ export async function getTodayStats(userId: string): Promise<TodayStats> {
     .eq('user_id', userId)
     .eq('fsrs_data->>state', '0');
 
+  // Total goal for today = already reviewed + still remaining
+  // This ensures percent never exceeds 100%
+  const reviewedCount = reviewed ?? 0;
+  const total = reviewedCount + (stillDue ?? 0);
+
   return {
-    reviewed: reviewed ?? 0,
-    total: total ?? 0,
+    reviewed: reviewedCount,
+    total,
     newCards: newCards ?? 0,
   };
 }

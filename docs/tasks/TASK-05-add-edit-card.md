@@ -266,7 +266,8 @@ const DIFFICULTY_MAP = { easy: 3.0, medium: 5.3, hard: 7.5 };
 ### General
 
 - [x] Nút "Huỷ" navigate back
-- [x] Breadcrumb: "← Tên Deck" back link
+- [x] Breadcrumb: Thư viện → Tên Deck → Thêm thẻ mới / Chỉnh sửa thẻ (`text-xs font-medium text-slate-500`)
+- [x] Header đồng bộ: icon `BookOpen` + `text-3xl font-black tracking-tight`
 - [x] Không có lỗi TypeScript
 - [x] Responsive trên mobile: form full-width, preview ẩn
 
@@ -274,5 +275,4 @@ const DIFFICULTY_MAP = { easy: 3.0, medium: 5.3, hard: 7.5 };
 
 ## ⚠️ Pending / To-do
 
-- [ ] `word_type` chưa được lưu lên DB (cần chạy migration `ALTER TABLE flashcards ADD COLUMN word_type text` và thêm vào insert/update trong `cards.ts`)
 - [ ] `DeckSelector` chưa có option "＋ Tạo bộ thẻ mới" inline

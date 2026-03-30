@@ -16,7 +16,7 @@ import { useRouter } from 'next/navigation';
 import { useMemo, useState, useTransition } from 'react';
 import { toast } from 'sonner';
 
-import { MasteryBadge } from '@/components/library/MasteryBadge';
+import { MasteryBadge } from '@/components/cards/MasteryBadge';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,

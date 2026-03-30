@@ -12,7 +12,8 @@ type Props = {
 };
 
 export function TodayGoalWidget({ reviewed, total }: Props) {
-  const percent = total > 0 ? Math.round((reviewed / total) * 100) : 0;
+  const percent =
+    total > 0 ? Math.min(Math.round((reviewed / total) * 100), 100) : 0;
   const remaining = total - reviewed;
   const isDone = reviewed >= total && total > 0;
 
