@@ -1,7 +1,10 @@
+'use client';
+
 import { BookOpen, CheckCircle, Clock } from 'lucide-react';
 
+import { AnimatedProgress } from '@/components/ui/animated-progress';
 import { Card, CardContent } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
+import { CountUp } from '@/components/ui/count-up';
 
 import type { Period, PeriodStats } from '@/lib/data/history';
 
@@ -38,13 +41,27 @@ function TrendBadge({
   );
 }
 
+// Goal per period (seconds): week=5h, month=20h, all=no cap
+const PERIOD_GOAL_SEC: Record<Period, number | null> = {
+  week: 5 * 3600, // 5 giờ / tuần
+  month: 20 * 3600, // 20 giờ / tháng
+  all: null,
+};
+
 export function HistoryStatsRow({ stats, prev_stats, period }: Props) {
   const showTrend = period !== 'all';
   const timeFormatted = formatDuration(stats.total_time_sec);
-  const totalTimeProgress = Math.min(
-    (stats.total_time_sec / (7 * 3600)) * 100,
-    100,
-  );
+  const goalSec = PERIOD_GOAL_SEC[period];
+  const totalTimeProgress = goalSec
+    ? Math.min((stats.total_time_sec / goalSec) * 100, 100)
+    : 100;
+  const timeBarColor =
+    totalTimeProgress >= 80
+      ? 'bg-emerald-500'
+      : totalTimeProgress >= 40
+        ? 'bg-amber-400'
+        : 'bg-red-400';
+  const goalFormatted = goalSec ? formatDuration(goalSec) : null;
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -61,17 +78,29 @@ export function HistoryStatsRow({ stats, prev_stats, period }: Props) {
           </div>
           <div className="mb-1 flex items-baseline gap-1.5">
             <span className="text-3xl font-black text-slate-800">
-              {timeFormatted.value}
+              <CountUp
+                to={stats.total_time_sec}
+                formatter={(v) => {
+                  const h = v / 3600;
+                  if (h >= 1) return h.toFixed(1);
+                  return String(Math.round(v / 60));
+                }}
+              />
             </span>
             <span className="text-sm font-semibold text-slate-400">
               {timeFormatted.unit}
             </span>
           </div>
-          <Progress
+          <AnimatedProgress
             value={totalTimeProgress}
             className="mt-3 h-1.5 bg-emerald-50"
-            indicatorClassName="bg-emerald-500"
+            indicatorClassName={timeBarColor}
           />
+          {goalFormatted && (
+            <p className="mt-1.5 text-[11px] text-slate-400">
+              Mục tiêu: {goalFormatted.value} {goalFormatted.unit}
+            </p>
+          )}
         </CardContent>
       </Card>
 
@@ -88,7 +117,7 @@ export function HistoryStatsRow({ stats, prev_stats, period }: Props) {
           </div>
           <div className="mb-1 flex items-baseline gap-1.5">
             <span className="text-3xl font-black text-slate-800">
-              {stats.total_reviewed.toLocaleString('vi-VN')}
+              <CountUp to={stats.total_reviewed} />
             </span>
             <span className="text-sm font-semibold text-slate-400">thẻ</span>
           </div>
@@ -116,27 +145,21 @@ export function HistoryStatsRow({ stats, prev_stats, period }: Props) {
           </div>
           <div className="mb-1 flex items-baseline gap-1.5">
             <span className="text-3xl font-black text-slate-800">
-              {stats.avg_accuracy}
+              <CountUp to={stats.avg_accuracy} suffix="" />
             </span>
             <span className="text-sm font-semibold text-slate-400">%</span>
           </div>
-          {/* Segmented progress: green = correct, yellow = hard, red = again — 
-              simplified as a single bar since we only have avg_accuracy */}
-          <div className="mt-3 flex h-1.5 overflow-hidden rounded-full bg-slate-100">
-            <div
-              className="bg-emerald-500 transition-all"
-              style={{ width: `${stats.avg_accuracy}%` }}
-            />
-            {stats.avg_accuracy > 0 && (
-              <div
-                className="bg-amber-400 transition-all"
-                style={{
-                  width: `${Math.max(0, Math.min(15, 100 - stats.avg_accuracy - 5))}%`,
-                }}
-              />
-            )}
-            <div className="flex-1 bg-slate-100" />
-          </div>
+          <AnimatedProgress
+            value={stats.avg_accuracy}
+            className="mt-3 h-1.5 bg-slate-100"
+            indicatorClassName={
+              stats.avg_accuracy >= 80
+                ? 'bg-emerald-500'
+                : stats.avg_accuracy >= 50
+                  ? 'bg-amber-400'
+                  : 'bg-red-400'
+            }
+          />
         </CardContent>
       </Card>
     </div>

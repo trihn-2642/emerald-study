@@ -218,7 +218,7 @@ export function HistoryTable({ sessions, total, page, limit }: Props) {
                     <Button
                       asChild
                       size="sm"
-                      className="bg-emerald-600 text-white hover:bg-emerald-700"
+                      className="bg-emerald-600 text-white hover:bg-emerald-700!"
                     >
                       <Link href={`/study/${s.deck_id}`}>Học lại</Link>
                     </Button>
