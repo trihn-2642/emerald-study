@@ -2,6 +2,7 @@ import {
   createEmptyCard,
   fsrs,
   generatorParameters,
+  Grade,
   Rating,
   State,
 } from 'ts-fsrs';
@@ -16,7 +17,7 @@ const f = fsrs(generatorParameters({ enable_fuzz: true }));
  */
 export function scheduleCard(
   data: FsrsData,
-  rating: Rating,
+  rating: Grade,
 ): { nextData: FsrsData; nextReview: string } {
   // For new (never-reviewed) cards, the FSRS algorithm requires stability=0 and difficulty=0.
   // Our DB may store a non-zero difficulty from DIFFICULTY_MAP before the first review,
@@ -31,6 +32,7 @@ export function scheduleCard(
         difficulty: data.difficulty,
         elapsed_days: data.elapsed_days,
         scheduled_days: data.scheduled_days,
+        learning_steps: 0,
         reps: data.reps,
         lapses: data.lapses,
         state: data.state as State,
