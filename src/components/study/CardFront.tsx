@@ -47,23 +47,23 @@ export function CardFront({ card }: Props) {
           {card.front}
         </p>
 
-        {/* Pinyin / secondary text */}
-        {card.pinyin && (
-          <div className="flex items-center gap-2">
+        {/* Pinyin / secondary text + volume */}
+        <div className="flex items-center gap-2">
+          {card.pinyin && (
             <span className="text-lg text-slate-400 md:text-xl">
               {card.pinyin}
             </span>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                speak(card.front, card.language);
-              }}
-              className="cursor-pointer text-slate-300 transition-colors hover:text-emerald-500"
-            >
-              <Volume2 className="h-5 w-5" />
-            </button>
-          </div>
-        )}
+          )}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              speak(card.front, card.language);
+            }}
+            className="cursor-pointer text-slate-300 transition-colors hover:text-emerald-500"
+          >
+            <Volume2 className="h-5 w-5" />
+          </button>
+        </div>
       </div>
 
       {/* Meanings */}

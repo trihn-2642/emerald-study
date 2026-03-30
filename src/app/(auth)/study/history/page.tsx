@@ -83,9 +83,6 @@ export default async function StudyHistoryPage({ searchParams }: Props) {
       <div className="rounded-2xl bg-white p-5 shadow-sm">
         <div className="mb-5 flex items-center justify-between">
           <h2 className="font-bold text-slate-800">Chi tiết phiên học</h2>
-          <button className="cursor-not-allowed text-sm font-semibold text-emerald-600 opacity-50">
-            Xuất báo cáo
-          </button>
         </div>
         <HistoryTable
           sessions={data.sessions}
