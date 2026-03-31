@@ -23,8 +23,8 @@ export function ActivityFeed({ activities }: Props) {
         </p>
       ) : (
         <ul
-          className={cn('max-h-23 space-y-4 overflow-y-auto', {
-            'pr-2.5': activities.length > 3,
+          className={cn('scrollbar-thin max-h-23 space-y-4 overflow-y-auto', {
+            'pr-2': activities.length > 3,
           })}
         >
           {activities.map((activity) => (
