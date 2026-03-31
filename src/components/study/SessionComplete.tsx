@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import Confetti from 'react-confetti';
 
 import { Button } from '@/components/ui/button';
+import { RATING_LABELS, type TRating } from '@/constants';
 import { saveStudySession } from '@/lib/data/history';
 import { useStudyStore } from '@/store/useStudyStore';
 
@@ -16,13 +17,6 @@ type Props = {
   totalCards: number;
   ratingStats: Record<number, number>;
   onStudyAgain: () => void;
-};
-
-const RATING_LABELS: Record<number, { label: string; className: string }> = {
-  1: { label: 'Lại', className: 'bg-red-50 text-red-600' },
-  2: { label: 'Khó', className: 'bg-amber-50 text-amber-600' },
-  3: { label: 'Tốt', className: 'bg-blue-50 text-blue-600' },
-  4: { label: 'Dễ', className: 'bg-emerald-50 text-emerald-600' },
 };
 
 export function SessionComplete({
@@ -111,7 +105,7 @@ export function SessionComplete({
 
           <div className="grid grid-cols-4 gap-2">
             {statsEntries.map(({ rating, count }) => {
-              const info = RATING_LABELS[rating];
+              const info = RATING_LABELS[rating as TRating];
               if (!info) return null;
               return (
                 <div

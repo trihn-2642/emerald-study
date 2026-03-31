@@ -4,8 +4,7 @@ import { cache } from 'react';
 
 import { createClient, getUser } from '@/lib/supabase/server';
 
-import type { FsrsData } from '@/types';
-import type { Deck, Flashcard } from '@/types';
+import type { FsrsData , Deck, Flashcard } from '@/types';
 
 export interface StudySession {
   cards: Flashcard[];

@@ -147,8 +147,14 @@ function DeckDetailHeader({ deck }: Props) {
           </div>
           <AnimatedProgress
             value={mastery}
-            className="mt-3 h-2 bg-emerald-100"
-            indicatorClassName="rounded-full bg-emerald-500"
+            className="mt-3 h-2 bg-slate-100"
+            indicatorClassName={`rounded-full ${
+              mastery >= 80
+                ? 'bg-emerald-500'
+                : mastery >= 50
+                  ? 'bg-amber-400'
+                  : 'bg-red-400'
+            }`}
           />
         </div>
       </div>

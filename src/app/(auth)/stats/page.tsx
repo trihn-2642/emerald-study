@@ -42,19 +42,22 @@ export default async function StatisticsPage() {
         xl (PC):     row1=heatmap(3/5) + fsrs(2/5) | row2=deck full
       */}
       <div className="grid gap-6 lg:grid-cols-5">
-        <div className="lg:col-span-5 xl:col-span-3">
+        {/* Heatmap: full width on lg, 3/5 on xl (row 1) */}
+        <div className="min-w-0 lg:col-span-5 xl:col-span-3 xl:row-start-1">
           <Suspense fallback={<HeatmapSkeleton />}>
             <HeatmapSection userId={user.id} />
           </Suspense>
         </div>
 
-        <div className="lg:col-span-2 xl:col-span-2 xl:row-start-1">
+        {/* FSRS: 2/5 on lg, cols 4–5 on xl (row 1) — explicit col-start prevents wrong order */}
+        <div className="lg:col-span-2 xl:col-span-2 xl:col-start-4 xl:row-start-1">
           <Suspense fallback={<FsrsBreakdownSkeleton />}>
             <FsrsSection userId={user.id} />
           </Suspense>
         </div>
 
-        <div className="lg:col-span-3 xl:col-span-5">
+        {/* Deck stats: 3/5 on lg, full width on xl (row 2) */}
+        <div className="lg:col-span-3 xl:col-span-5 xl:row-start-2">
           <Suspense fallback={<DeckStatsSkeleton />}>
             <DeckStatsSection userId={user.id} />
           </Suspense>

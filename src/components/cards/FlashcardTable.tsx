@@ -229,21 +229,21 @@ function FlashcardTable({ flashcards, deckId, language }: Props) {
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
       {/* Table header */}
-      <div className="flex flex-col gap-4 border-b border-slate-100/70 px-8 py-6 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-3 border-b border-slate-100/70 px-5 py-5 md:flex-row md:items-center md:justify-between md:px-8 md:py-6">
         <h3 className="text-on-surface font-bold">Danh sách từ vựng</h3>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {/* Search */}
-          <div className="relative">
+          <div className="relative flex-1 md:flex-none">
             <Search className="absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
             <input
               value={query}
               onChange={(e) => handleQueryChange(e.target.value)}
               placeholder="Tìm kiếm..."
-              className="h-9 w-48 rounded-xl border border-slate-200 bg-white pr-3 pl-9 text-xs transition outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20"
+              className="h-9 w-full rounded-xl border border-slate-200 bg-white pr-3 pl-9 text-xs transition outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/20 md:w-48"
             />
           </div>
           {/* State filter */}
-          <div className="relative">
+          <div className="relative shrink-0">
             <Filter className="pointer-events-none absolute top-1/2 left-3 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
             <select
               value={stateFilter}
@@ -271,7 +271,95 @@ function FlashcardTable({ flashcards, deckId, language }: Props) {
         </div>
       ) : (
         <>
-          <div className="overflow-x-auto">
+          {/* Mobile card list */}
+          <div className="divide-y divide-slate-50 md:hidden">
+            {paginated.map((card) => {
+              const state = (card.fsrs_data as FsrsData)?.state ?? 0;
+              const examples = (card.examples ?? []) as Example[];
+              const { label: dueLabel, className: dueClass } = getDueLabel(
+                card.next_review,
+              );
+              return (
+                <div key={card.id} className="px-5 py-4">
+                  {/* Word + due badge */}
+                  <div className="mb-1.5 flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p
+                        className={
+                          isZh
+                            ? 'text-on-surface text-2xl leading-tight font-bold'
+                            : 'text-on-surface text-lg font-bold'
+                        }
+                      >
+                        {card.front}
+                      </p>
+                      {isZh && card.pinyin && (
+                        <p className="text-sm font-medium text-emerald-600 italic">
+                          {card.pinyin}
+                        </p>
+                      )}
+                    </div>
+                    <span
+                      className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${dueClass}`}
+                    >
+                      {dueLabel}
+                    </span>
+                  </div>
+
+                  {/* Meanings */}
+                  <p className="mb-1 text-sm text-slate-700">
+                    {card.meaning_vn}
+                  </p>
+                  {isZh
+                    ? card.meaning_en && (
+                        <p className="mb-2 text-xs text-slate-400 italic">
+                          {card.meaning_en}
+                        </p>
+                      )
+                    : card.pinyin && (
+                        <p className="mb-2 text-xs text-slate-400 italic">
+                          {card.pinyin}
+                        </p>
+                      )}
+
+                  {/* Examples (collapsed by default via ExampleCell) */}
+                  {examples.length > 0 && (
+                    <div className="mb-3">
+                      <ExampleCell examples={examples} isZh={isZh} />
+                    </div>
+                  )}
+
+                  {/* Footer: state badge + word type + actions */}
+                  <div className="flex items-center justify-between gap-2 pt-2">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <MasteryBadge state={state} />
+                      <WordTypeBadge wordType={card.word_type} />
+                    </div>
+                    <div className="flex shrink-0 items-center gap-1">
+                      <Link
+                        href={`/library/${deckId}/cards/${card.id}/edit`}
+                        className="rounded-lg p-2 text-emerald-600 transition-colors hover:bg-emerald-50"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Link>
+                      <button
+                        onClick={() => {
+                          setDeleteTarget(card.id);
+                          setDeleteError(null);
+                        }}
+                        className="cursor-pointer rounded-lg p-2 text-red-500 transition-colors hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop table */}
+          <div className="hidden overflow-x-auto md:block">
             <table className="w-full min-w-7xl border-collapse text-left">
               <thead>
                 <tr className="bg-surface-page/40">
@@ -418,7 +506,7 @@ function FlashcardTable({ flashcards, deckId, language }: Props) {
           </div>
 
           {/* Pagination */}
-          <div className="flex items-center justify-between bg-slate-50/50 px-8 py-6">
+          <div className="flex items-center justify-between bg-slate-50/50 px-5 py-5 md:px-8 md:py-6">
             <p className="text-xs text-slate-500">
               Hiển thị {start}–{end} của {sorted.length} thẻ
             </p>

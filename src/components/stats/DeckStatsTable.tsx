@@ -1,6 +1,5 @@
 'use client';
 
-import dayjs from 'dayjs';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -8,6 +7,7 @@ import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { LANGUAGE_LABELS } from '@/constants';
 import { cn } from '@/lib/utils';
+import { formatLastStudied } from '@/utils';
 
 import type { DeckStat } from '@/lib/data/statistics';
 
@@ -16,17 +16,6 @@ const PAGE_SIZE = 6;
 type Props = {
   decks: DeckStat[];
 };
-
-function formatLastStudied(iso: string | null): string {
-  if (!iso) return '—';
-  const d = dayjs(iso);
-  const today = dayjs().startOf('day');
-  const diff = today.diff(d.startOf('day'), 'day');
-  if (diff === 0) return 'Hôm nay';
-  if (diff === 1) return 'Hôm qua';
-  if (diff < 7) return `${diff} ngày trước`;
-  return d.format('DD/MM/YYYY');
-}
 
 function AccuracyBadge({ value }: { value: number }) {
   if (value === 0) return <span className="text-xs text-slate-300">—</span>;
@@ -41,11 +30,11 @@ function AccuracyBadge({ value }: { value: number }) {
 
 function MasteryBar({ value }: { value: number }) {
   const color =
-    value >= 70
+    value >= 80
       ? 'bg-emerald-500'
-      : value >= 40
+      : value >= 50
         ? 'bg-amber-400'
-        : 'bg-slate-300';
+        : 'bg-red-400';
   return (
     <div className="flex items-center gap-2">
       <div className="h-1.5 w-16 overflow-hidden rounded-full bg-slate-100">

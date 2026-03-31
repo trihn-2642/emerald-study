@@ -11,8 +11,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/password-input';
-import { registerSchema, type RegisterFormValues } from '@/lib/auth-schemas';
 import { createClient } from '@/lib/supabase/client';
+import {
+  registerSchema,
+  type RegisterFormValues,
+} from '@/lib/validations/auth';
 
 export default function RegisterPage() {
   const router = useRouter();

@@ -9,10 +9,9 @@ function easeOutCubic(t: number) {
 }
 
 function getRingColor(mastery: number): string {
-  if (mastery >= 80) return 'stroke-emerald-600';
-  if (mastery >= 60) return 'stroke-emerald-500';
-  if (mastery >= 40) return 'stroke-blue-500';
-  return 'stroke-orange-400';
+  if (mastery >= 80) return 'stroke-emerald-500';
+  if (mastery >= 50) return 'stroke-amber-400';
+  return 'stroke-red-400';
 }
 
 type Props = {

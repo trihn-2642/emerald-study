@@ -5,6 +5,7 @@ import { BookOpen, CheckCircle, Clock } from 'lucide-react';
 import { AnimatedProgress } from '@/components/ui/animated-progress';
 import { Card, CardContent } from '@/components/ui/card';
 import { CountUp } from '@/components/ui/count-up';
+import { formatDurationParts } from '@/utils';
 
 import type { Period, PeriodStats } from '@/lib/data/history';
 
@@ -13,13 +14,6 @@ type Props = {
   prev_stats: PeriodStats | null;
   period: Period;
 };
-
-function formatDuration(seconds: number): { value: string; unit: string } {
-  const hours = seconds / 3600;
-  if (hours >= 1) return { value: hours.toFixed(1), unit: 'giờ' };
-  const minutes = Math.round(seconds / 60);
-  return { value: String(minutes), unit: 'phút' };
-}
 
 function TrendBadge({
   current,
@@ -50,7 +44,7 @@ const PERIOD_GOAL_SEC: Record<Period, number | null> = {
 
 export function HistoryStatsRow({ stats, prev_stats, period }: Props) {
   const showTrend = period !== 'all';
-  const timeFormatted = formatDuration(stats.total_time_sec);
+  const timeFormatted = formatDurationParts(stats.total_time_sec);
   const goalSec = PERIOD_GOAL_SEC[period];
   const totalTimeProgress = goalSec
     ? Math.min((stats.total_time_sec / goalSec) * 100, 100)
@@ -61,7 +55,7 @@ export function HistoryStatsRow({ stats, prev_stats, period }: Props) {
       : totalTimeProgress >= 40
         ? 'bg-amber-400'
         : 'bg-red-400';
-  const goalFormatted = goalSec ? formatDuration(goalSec) : null;
+  const goalFormatted = goalSec ? formatDurationParts(goalSec) : null;
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

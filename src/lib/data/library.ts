@@ -2,9 +2,9 @@
 
 import { revalidatePath } from 'next/cache';
 import { cache } from 'react';
-import { z } from 'zod';
 
 import { createClient, getUser } from '@/lib/supabase/server';
+import { DeckFormData, deckSchema } from '@/lib/validations/card';
 
 import type { Deck, Flashcard } from '@/types';
 
@@ -146,21 +146,8 @@ export async function getFlashcardsByDeck(
 
 // ─── Deck mutations ────────────────────────────────────────────────────────────
 
-const deckSchema = z.object({
-  name: z
-    .string()
-    .min(1, 'Tên bộ thẻ không được để trống')
-    .max(100, 'Tối đa 100 ký tự'),
-  description: z.string().max(500, 'Tối đa 500 ký tự').optional(),
-  language: z.enum(['zh', 'en'], {
-    error: 'Vui lòng chọn ngôn ngữ',
-  }),
-});
-
-export type DeckInput = z.infer<typeof deckSchema>;
-
 export async function createDeck(
-  input: DeckInput,
+  input: DeckFormData,
 ): Promise<{ error: string } | { success: true }> {
   const parsed = deckSchema.safeParse(input);
   if (!parsed.success) {
@@ -214,13 +201,7 @@ export async function updateDeck(
   const user = await getUser();
   if (!user) return { error: 'Chưa đăng nhập.' };
 
-  const parsed = z
-    .object({
-      name: z.string().min(1).max(100),
-      description: z.string().max(500).optional(),
-      language: z.enum(['zh', 'en']),
-    })
-    .safeParse(input);
+  const parsed = deckSchema.safeParse(input);
 
   if (!parsed.success) return { error: 'Dữ liệu không hợp lệ.' };
 

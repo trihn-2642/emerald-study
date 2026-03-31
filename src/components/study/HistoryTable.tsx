@@ -11,6 +11,11 @@ import {
 } from '@/components/ui/table';
 import { LANGUAGE_LABELS } from '@/constants';
 import { cn } from '@/lib/utils';
+import {
+  formatDurationString,
+  formatStartedAt,
+  getMasteryColor,
+} from '@/utils';
 
 import type { StudySessionRow } from '@/lib/data/history';
 
@@ -20,45 +25,6 @@ type Props = {
   page: number;
   limit: number;
 };
-
-function formatDuration(seconds: number): string {
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  if (h > 0) return `${h} giờ ${m} phút`;
-  return `${m} phút`;
-}
-
-function formatStartedAt(iso: string): { line1: string; line2: string } {
-  const d = new Date(iso);
-  const now = new Date();
-  const isToday = d.toDateString() === now.toDateString();
-  const yesterday = new Date(now);
-  yesterday.setDate(now.getDate() - 1);
-  const isYesterday = d.toDateString() === yesterday.toDateString();
-
-  const time = d.toLocaleTimeString('vi-VN', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-  const date = d.toLocaleDateString('vi-VN', { day: 'numeric', month: 'long' });
-
-  if (isToday) return { line1: `Hôm nay, ${time}`, line2: date };
-  if (isYesterday) return { line1: `Hôm qua, ${time}`, line2: date };
-  return {
-    line1: d.toLocaleDateString('vi-VN', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-    }),
-    line2: `${time}`,
-  };
-}
-
-function getAccuracyColor(pct: number): string {
-  if (pct >= 80) return 'bg-emerald-500';
-  if (pct >= 60) return 'bg-amber-400';
-  return 'bg-red-400';
-}
 
 function SessionLabelBadge({
   accuracy,
@@ -178,7 +144,7 @@ export function HistoryTable({ sessions, total, page, limit }: Props) {
                   </TableCell>
                   {/* Duration */}
                   <TableCell className="py-4 text-sm font-semibold text-slate-700">
-                    {formatDuration(s.duration_sec)}
+                    {formatDurationString(s.duration_sec)}
                   </TableCell>
                   {/* Cards reviewed */}
                   <TableCell className="py-4">
@@ -194,7 +160,7 @@ export function HistoryTable({ sessions, total, page, limit }: Props) {
                         <div
                           className={cn(
                             'h-full rounded-full transition-all',
-                            getAccuracyColor(accuracy),
+                            getMasteryColor(accuracy),
                           )}
                           style={{ width: `${accuracy}%` }}
                         />
@@ -204,7 +170,7 @@ export function HistoryTable({ sessions, total, page, limit }: Props) {
                           'text-sm font-bold',
                           accuracy >= 80
                             ? 'text-emerald-600'
-                            : accuracy >= 60
+                            : accuracy >= 50
                               ? 'text-amber-500'
                               : 'text-red-500',
                         )}
@@ -268,7 +234,7 @@ export function HistoryTable({ sessions, total, page, limit }: Props) {
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-slate-500">
-                  {formatDuration(s.duration_sec)} •{' '}
+                  {formatDurationString(s.duration_sec)} •{' '}
                   <span className="font-semibold text-slate-700">
                     {s.cards_reviewed}/{s.cards_total}
                   </span>
@@ -279,7 +245,7 @@ export function HistoryTable({ sessions, total, page, limit }: Props) {
                     'font-bold',
                     accuracy >= 80
                       ? 'text-emerald-600'
-                      : accuracy >= 60
+                      : accuracy >= 50
                         ? 'text-amber-500'
                         : 'text-red-500',
                   )}
@@ -291,7 +257,7 @@ export function HistoryTable({ sessions, total, page, limit }: Props) {
                 <div
                   className={cn(
                     'h-full rounded-full transition-all',
-                    getAccuracyColor(accuracy),
+                    getMasteryColor(accuracy),
                   )}
                   style={{ width: `${accuracy}%` }}
                 />
