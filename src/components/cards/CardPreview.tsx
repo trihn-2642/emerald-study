@@ -279,7 +279,7 @@ function CardPreview({
               Thuật toán ghi nhớ
             </p>
             <p className="mt-0.5 text-[11px] leading-relaxed text-emerald-700">
-              Thẻ này sẽ xuất hiện lại sau 4 ngày nếu bạn đánh giá là
+              Thẻ này sẽ xuất hiện lại sau 7 ngày nếu bạn đánh giá là
               &ldquo;Dễ&rdquo;.
             </p>
           </div>

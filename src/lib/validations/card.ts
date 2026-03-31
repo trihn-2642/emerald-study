@@ -17,7 +17,7 @@ const exampleEnSchema = z.object({
 export function createCardSchema(language: 'zh' | 'en') {
   return z
     .object({
-      deck_id: z.string().uuid('Vui lòng chọn bộ thẻ'),
+      deck_id: z.string().optional(),
       language: z.enum(['zh', 'en']),
       word_type: z.string().optional(),
       front: z

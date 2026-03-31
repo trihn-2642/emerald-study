@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 
-import type { DeckFormData } from '@/components/library/CreateDeckDialog';
+import type { DeckFormData } from '@/lib/validations/card';
 import type { Deck } from '@/types';
 
 type FilterValue = 'all' | 'zh' | 'en';

@@ -2,44 +2,8 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 
+import { RATINGS } from '@/constants';
 import { cn } from '@/lib/utils';
-
-type RatingConfig = {
-  label: string;
-  value: 1 | 2 | 3 | 4;
-  interval: string;
-  className: string;
-};
-
-const RATINGS: RatingConfig[] = [
-  {
-    label: 'Lại',
-    value: 1,
-    interval: 'Học lại',
-    className: 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-100',
-  },
-  {
-    label: 'Khó',
-    value: 2,
-    interval: '~1 ngày',
-    className:
-      'bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-100',
-  },
-  {
-    label: 'Tốt',
-    value: 3,
-    interval: '~4 ngày',
-    className:
-      'bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-100',
-  },
-  {
-    label: 'Dễ',
-    value: 4,
-    interval: '~7 ngày',
-    className:
-      'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-100',
-  },
-];
 
 type Props = {
   visible: boolean;

@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useTransition } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { z } from 'zod';
 
 import Loading from '@/app/loading';
 import { Button } from '@/components/ui/button';
@@ -18,19 +17,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { updateDeck } from '@/lib/data/library';
 import { cn } from '@/lib/utils';
+import { deckSchema, type DeckFormData } from '@/lib/validations/card';
 
 import type { Deck } from '@/types';
-
-const deckSchema = z.object({
-  name: z
-    .string()
-    .min(1, 'Tên bộ thẻ không được để trống')
-    .max(100, 'Tối đa 100 ký tự'),
-  description: z.string().max(500, 'Tối đa 500 ký tự').optional(),
-  language: z.enum(['zh', 'en'], { error: 'Vui lòng chọn ngôn ngữ' }),
-});
-
-type DeckFormData = z.infer<typeof deckSchema>;
 
 type Props = {
   deck: Deck;

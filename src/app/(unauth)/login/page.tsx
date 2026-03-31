@@ -11,8 +11,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/password-input';
-import { loginSchema, type LoginFormValues } from '@/lib/auth-schemas';
 import { createClient } from '@/lib/supabase/client';
+import { loginSchema, type LoginFormValues } from '@/lib/validations/auth';
 
 export default function LoginPage() {
   const router = useRouter();

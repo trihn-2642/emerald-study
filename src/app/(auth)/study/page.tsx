@@ -138,6 +138,21 @@ function StudyDeckCard({ deck, done = false }: CardProps) {
         {deck.description || 'Không có mô tả.'}
       </p>
 
+      {/* Mastery progress bar */}
+      <div className="mb-3 h-1 overflow-hidden rounded-full bg-slate-100">
+        <div
+          className={cn(
+            'h-full rounded-full transition-all duration-500',
+            deck.mastery_percent >= 80
+              ? 'bg-emerald-500'
+              : deck.mastery_percent >= 50
+                ? 'bg-amber-400'
+                : 'bg-red-400',
+          )}
+          style={{ width: `${deck.mastery_percent}%` }}
+        />
+      </div>
+
       <div className="flex items-center justify-between">
         <span className="text-xs text-slate-400">
           {deck.mastery_percent}% đã thuộc

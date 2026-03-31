@@ -13,6 +13,7 @@ import { DeckSelector } from '@/components/cards/DeckSelector';
 import { ExampleList } from '@/components/cards/ExampleList';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { DIFFICULTY_OPTIONS, WORD_TYPES, type Difficulty } from '@/constants';
 import { createCard, updateCard } from '@/lib/data/cards';
 import { cn } from '@/lib/utils';
 import { createCardSchema } from '@/lib/validations/card';
@@ -20,48 +21,12 @@ import { createCardSchema } from '@/lib/validations/card';
 import type { CardFormData } from '@/lib/validations/card';
 import type { Flashcard } from '@/types';
 
-type Difficulty = 'easy' | 'medium' | 'hard';
-
 type Props = {
   deckId: string;
   deckName: string;
   deckLanguage: 'zh' | 'en';
   initialData?: Flashcard;
 };
-
-const DIFFICULTY_OPTIONS: { value: Difficulty; label: string }[] = [
-  { value: 'easy', label: 'DỄ' },
-  { value: 'medium', label: 'VỪA' },
-  { value: 'hard', label: 'KHÓ' },
-];
-
-const WORD_TYPES = [
-  {
-    value: 'noun',
-    label: 'Danh từ',
-    active: 'border-blue-200 bg-blue-50 text-blue-700',
-  },
-  {
-    value: 'verb',
-    label: 'Động từ',
-    active: 'border-purple-200 bg-purple-50 text-purple-700',
-  },
-  {
-    value: 'adj',
-    label: 'Tính từ',
-    active: 'border-orange-200 bg-orange-50 text-orange-700',
-  },
-  {
-    value: 'adv',
-    label: 'Trạng từ',
-    active: 'border-pink-200 bg-pink-50 text-pink-700',
-  },
-  {
-    value: 'other',
-    label: 'Khác',
-    active: 'border-slate-200 bg-slate-100 text-slate-600',
-  },
-];
 
 function CardForm({ deckId, deckName, deckLanguage, initialData }: Props) {
   const router = useRouter();
@@ -147,7 +112,7 @@ function CardForm({ deckId, deckName, deckLanguage, initialData }: Props) {
   };
 
   return (
-    <div>
+    <div className="pb-12 lg:pb-0">
       {/* Page header */}
       <header className="mb-8 flex items-end justify-between">
         <div>
@@ -176,7 +141,7 @@ function CardForm({ deckId, deckName, deckLanguage, initialData }: Props) {
               {isEdit ? 'Chỉnh sửa thẻ học' : 'Tạo thẻ học mới'}
             </h1>
           </div>
-          <p className="mt-1 text-slate-500">
+          <p className="mt-1 text-sm text-slate-500">
             Hệ thống lặp lại ngắt quãng (SRS) sẽ giúp bạn ghi nhớ hiệu quả hơn.
           </p>
         </div>
@@ -210,7 +175,7 @@ function CardForm({ deckId, deckName, deckLanguage, initialData }: Props) {
           {/* Form side */}
           <div className="col-span-12 space-y-8 lg:col-span-7">
             {/* Section 1: Nội dung chi tiết */}
-            <section className="rounded-2xl bg-white p-8 shadow-sm">
+            <section className="rounded-2xl bg-white p-5 shadow-sm md:p-8">
               <h3 className="text-on-surface mb-6 flex items-center gap-2 text-lg font-bold">
                 <BookOpen className="h-5 w-5 text-emerald-600" />
                 Nội dung chi tiết
@@ -282,7 +247,11 @@ function CardForm({ deckId, deckName, deckLanguage, initialData }: Props) {
 
                 {/* Meaning VN + EN */}
                 <div
-                  className={language === 'zh' ? 'grid grid-cols-2 gap-4' : ''}
+                  className={
+                    language === 'zh'
+                      ? 'grid grid-cols-1 gap-4 sm:grid-cols-2'
+                      : ''
+                  }
                 >
                   <div className="space-y-1.5">
                     <label
@@ -348,7 +317,7 @@ function CardForm({ deckId, deckName, deckLanguage, initialData }: Props) {
             </section>
 
             {/* Section 2: Phân loại & Ghi chú */}
-            <section className="rounded-2xl bg-white p-8 shadow-sm">
+            <section className="rounded-2xl bg-white p-5 shadow-sm md:p-8">
               <h3 className="text-on-surface mb-6 flex items-center gap-2 text-lg font-bold">
                 <Tag className="h-5 w-5 text-emerald-600" />
                 Phân loại &amp; Ghi chú
@@ -356,7 +325,7 @@ function CardForm({ deckId, deckName, deckLanguage, initialData }: Props) {
 
               <div className="space-y-5">
                 {/* Row 1: Deck + Word type */}
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6">
                   <div className="space-y-1.5">
                     <label className="ml-1 block text-xs font-bold tracking-widest text-slate-400 uppercase">
                       Bộ sưu tập
@@ -459,8 +428,8 @@ function CardForm({ deckId, deckName, deckLanguage, initialData }: Props) {
         </div>
       </form>
 
-      {/* Mobile sticky footer */}
-      <div className="fixed bottom-0 left-0 z-40 flex w-full gap-3 border-t border-slate-100 bg-white/80 p-4 backdrop-blur-md lg:hidden">
+      {/* Mobile sticky footer — sits above BottomNav (h-16) */}
+      <div className="fixed bottom-16 left-0 z-40 flex w-full gap-3 border-t border-slate-100 bg-white/90 p-4 shadow-[0_-4px_16px_rgba(0,0,0,0.06)] backdrop-blur-md lg:hidden">
         <Button
           type="button"
           variant="outline"
@@ -474,7 +443,7 @@ function CardForm({ deckId, deckName, deckLanguage, initialData }: Props) {
           type="submit"
           form="card-form"
           disabled={isPending || !isDirty}
-          className="flex-2 bg-emerald-600 hover:bg-emerald-700"
+          className="flex-1 bg-emerald-600 hover:bg-emerald-700"
         >
           {isPending ? 'Đang lưu...' : isEdit ? 'Lưu thay đổi' : 'Lưu thẻ'}
         </Button>

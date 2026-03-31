@@ -103,7 +103,7 @@ export function ActivityHeatmap({ data }: Props) {
   const activeDays = Object.keys(data).length;
 
   return (
-    <div className="rounded-2xl bg-white p-5 shadow-sm">
+    <div className="min-w-0 rounded-2xl bg-white p-5 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
         <div>
           <p className="text-sm font-bold text-slate-700">Hoạt động học tập</p>
