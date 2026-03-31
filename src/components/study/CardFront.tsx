@@ -49,7 +49,7 @@ export function CardFront({ card }: Props) {
 
         {/* Pinyin / secondary text + volume */}
         <div className="flex items-center gap-2">
-          {card.pinyin && (
+          {card.pinyin && isZh && (
             <span className="text-lg text-slate-400 md:text-xl">
               {card.pinyin}
             </span>
@@ -71,8 +71,11 @@ export function CardFront({ card }: Props) {
         <p className="text-on-surface text-base font-semibold">
           {card.meaning_vn}
         </p>
-        {card.meaning_en && (
+        {card.meaning_en && isZh && (
           <p className="text-sm text-slate-400">{card.meaning_en}</p>
+        )}
+        {card.pinyin && !isZh && (
+          <p className="text-sm text-slate-400">{card.pinyin}</p>
         )}
       </div>
 
