@@ -6,6 +6,7 @@ import {
   HistorySection,
   HistorySkeleton,
 } from '@/components/study/HistorySection';
+import { ROUTES } from '@/lib/routes';
 import { getUser } from '@/lib/supabase/server';
 
 import type { Period } from '@/lib/data/history';
@@ -34,7 +35,7 @@ export default async function StudyHistoryPage({ searchParams }: Props) {
       {/* Breadcrumb — renders immediately */}
       <nav className="mb-3 flex items-center gap-2 text-xs font-medium text-slate-500">
         <Link
-          href="/study"
+          href={ROUTES.STUDY}
           className="transition-colors hover:text-emerald-600"
         >
           Phiên học

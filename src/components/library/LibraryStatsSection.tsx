@@ -3,6 +3,7 @@ import Link from 'next/link';
 
 import { CountUp } from '@/components/ui/count-up';
 import { getAllDecks } from '@/lib/data/library';
+import { generatePath, ROUTES } from '@/lib/routes';
 
 type Props = {
   userId: string;
@@ -50,14 +51,18 @@ export async function LibraryStatsSection({ userId }: Props) {
           </p>
           {totalDue > 0 ? (
             <Link
-              href={`/study/${topDueDeck?.id}`}
+              href={generatePath(ROUTES.STUDY_SESSION, {
+                deckId: topDueDeck?.id ?? '',
+              })}
               className="inline-flex items-center gap-1.5 rounded-xl bg-white px-5 py-2.5 text-sm font-bold text-emerald-700 transition-opacity hover:opacity-90"
             >
               Bắt đầu học ngay
             </Link>
           ) : (
             <Link
-              href={`/library/${decks[0]?.id}/cards/new`}
+              href={generatePath(ROUTES.DECK_CARDS_NEW, {
+                deckId: decks[0]?.id ?? '',
+              })}
               className="inline-flex items-center gap-1.5 rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:bg-white/30"
             >
               Thêm thẻ mới

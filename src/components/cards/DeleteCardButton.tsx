@@ -14,6 +14,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { deleteCard } from '@/lib/data/cards';
+import { generatePath, ROUTES } from '@/lib/routes';
 
 type Props = {
   cardId: string;
@@ -36,7 +37,7 @@ function DeleteCardButton({ cardId, deckId }: Props) {
       }
       setOpen(false);
       toast.success('🗑️ Đã xóa thẻ.');
-      router.push(`/library/${deckId}/cards`);
+      router.push(generatePath(ROUTES.DECK_CARDS, { deckId }));
     });
   }
 

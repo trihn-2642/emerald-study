@@ -13,6 +13,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { deleteDeck } from '@/lib/data/library';
+import { ROUTES } from '@/lib/routes';
 
 type Props = {
   deckId: string;
@@ -34,7 +35,7 @@ function DeleteDeckDialog({ deckId, deckName }: Props) {
         return;
       }
       setOpen(false);
-      router.push('/library');
+      router.push(ROUTES.LIBRARY);
     });
   }
 

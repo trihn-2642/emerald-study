@@ -4,6 +4,7 @@ import Link from 'next/link';
 
 import { AnimatedProgress } from '@/components/ui/animated-progress';
 import { CountUp } from '@/components/ui/count-up';
+import { ROUTES } from '@/lib/routes';
 import { getProgressColor } from '@/utils';
 
 type Props = {
@@ -59,7 +60,7 @@ export function TodayGoalWidget({ reviewed, total }: Props) {
 
         <div className="pt-1">
           <Link
-            href="/library"
+            href={ROUTES.LIBRARY}
             className="from-brand-deep inline-flex items-center rounded-lg bg-linear-to-br to-emerald-500 px-8 py-3 text-sm font-bold text-white shadow-md transition-opacity hover:opacity-90 active:scale-95"
           >
             {isDone ? 'Xem thư viện' : 'Tiếp tục học ngay'}

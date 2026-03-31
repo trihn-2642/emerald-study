@@ -10,6 +10,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { LANGUAGE_LABELS } from '@/constants';
+import { generatePath, ROUTES } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 import {
   formatDurationString,
@@ -70,7 +71,7 @@ export function HistoryTable({ sessions, total, page, limit }: Props) {
           size="sm"
           className="bg-emerald-600 text-white hover:bg-emerald-700"
         >
-          <Link href="/study">Bắt đầu học</Link>
+          <Link href={ROUTES.STUDY}>Bắt đầu học</Link>
         </Button>
       </div>
     );
@@ -186,7 +187,13 @@ export function HistoryTable({ sessions, total, page, limit }: Props) {
                       size="sm"
                       className="bg-emerald-600 text-white hover:bg-emerald-700!"
                     >
-                      <Link href={`/study/${s.deck_id}`}>Học lại</Link>
+                      <Link
+                        href={generatePath(ROUTES.STUDY_SESSION, {
+                          deckId: s.deck_id,
+                        })}
+                      >
+                        Học lại
+                      </Link>
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -229,7 +236,13 @@ export function HistoryTable({ sessions, total, page, limit }: Props) {
                   size="sm"
                   className="shrink-0 bg-emerald-600 text-white hover:bg-emerald-700"
                 >
-                  <Link href={`/study/${s.deck_id}`}>Học lại</Link>
+                  <Link
+                    href={generatePath(ROUTES.STUDY_SESSION, {
+                      deckId: s.deck_id,
+                    })}
+                  >
+                    H\u1ecdc l\u1ea1i
+                  </Link>
                 </Button>
               </div>
               <div className="flex items-center justify-between text-sm">
@@ -276,14 +289,28 @@ export function HistoryTable({ sessions, total, page, limit }: Props) {
           <div className="flex gap-1">
             {page > 1 && (
               <Button asChild variant="outline" size="sm">
-                <Link href={`/study/history?page=${page - 1}`} className="px-3">
+                <Link
+                  href={generatePath(
+                    ROUTES.STUDY_HISTORY,
+                    {},
+                    { page: page - 1 },
+                  )}
+                  className="px-3"
+                >
                   ‹
                 </Link>
               </Button>
             )}
             {page < totalPages && (
               <Button asChild variant="outline" size="sm">
-                <Link href={`/study/history?page=${page + 1}`} className="px-3">
+                <Link
+                  href={generatePath(
+                    ROUTES.STUDY_HISTORY,
+                    {},
+                    { page: page + 1 },
+                  )}
+                  className="px-3"
+                >
                   ›
                 </Link>
               </Button>

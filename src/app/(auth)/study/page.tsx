@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { LANGUAGE_LABELS } from '@/constants';
 import { getDueDecks } from '@/lib/data/dashboard';
+import { generatePath, ROUTES } from '@/lib/routes';
 import { getUser } from '@/lib/supabase/server';
 import { cn } from '@/lib/utils';
 
@@ -31,7 +32,7 @@ export default async function StudyListPage() {
             </h1>
           </div>
           <Link
-            href="/study/history"
+            href={ROUTES.STUDY_HISTORY}
             className="text-sm font-semibold text-emerald-600 hover:underline"
           >
             Lịch sử →
@@ -76,7 +77,7 @@ export default async function StudyListPage() {
         <div className="flex flex-col items-center gap-4 py-24 text-center">
           <p className="text-slate-400">Chưa có bộ thẻ nào.</p>
           <Button asChild size="sm" className="bg-emerald-600 text-white">
-            <Link href="/library">Tạo bộ thẻ đầu tiên</Link>
+            <Link href={ROUTES.LIBRARY}>Tạo bộ thẻ đầu tiên</Link>
           </Button>
         </div>
       )}
@@ -100,8 +101,12 @@ type CardProps = {
 function StudyDeckCard({ deck, done = false }: CardProps) {
   const lang = LANGUAGE_LABELS[deck.language] ?? LANGUAGE_LABELS.en;
   const studyHref = done
-    ? `/study/${deck.id}?mode=review`
-    : `/study/${deck.id}`;
+    ? generatePath(
+        ROUTES.STUDY_SESSION,
+        { deckId: deck.id },
+        { mode: 'review' },
+      )
+    : generatePath(ROUTES.STUDY_SESSION, { deckId: deck.id });
 
   return (
     <div

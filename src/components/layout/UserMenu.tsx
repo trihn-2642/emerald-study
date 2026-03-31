@@ -11,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { ROUTES } from '@/lib/routes';
 import { createClient } from '@/lib/supabase/client';
 
 type Props = {
@@ -24,7 +25,7 @@ export function UserMenu({ name, email }: Props) {
   const handleLogout = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
-    router.replace('/login');
+    router.replace(ROUTES.LOGIN);
   };
 
   const initials = name

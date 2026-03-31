@@ -2,10 +2,12 @@
 
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { LANGUAGE_LABELS } from '@/constants';
+import { generatePath, ROUTES } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 import { formatLastStudied } from '@/utils';
 
@@ -50,6 +52,7 @@ function MasteryBar({ value }: { value: number }) {
 
 export function DeckStatsTable({ decks }: Props) {
   const [page, setPage] = useState(1);
+  const router = useRouter();
 
   if (decks.length === 0) {
     return (
@@ -131,7 +134,12 @@ export function DeckStatsTable({ decks }: Props) {
                 return (
                   <tr
                     key={deck.id}
-                    className="transition-colors hover:bg-slate-50/60"
+                    className="cursor-pointer transition-colors hover:bg-emerald-50/40"
+                    onClick={() =>
+                      router.push(
+                        generatePath(ROUTES.DECK_CARDS, { deckId: deck.id }),
+                      )
+                    }
                   >
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
@@ -218,10 +226,10 @@ export function DeckStatsTable({ decks }: Props) {
                   </div>
                 </div>
                 <Link
-                  href={`/study/${deck.id}`}
+                  href={generatePath(ROUTES.DECK_CARDS, { deckId: deck.id })}
                   className="rounded-lg bg-emerald-50 px-3 py-1.5 text-[11px] font-bold text-emerald-600 hover:bg-emerald-100"
                 >
-                  Học
+                  Xem
                 </Link>
               </div>
               <div className="grid grid-cols-3 gap-2 border-t border-slate-50 pt-3">

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { AnimatedProgress } from '@/components/ui/animated-progress';
 import { Button } from '@/components/ui/button';
 import { CountUp } from '@/components/ui/count-up';
+import { generatePath, ROUTES } from '@/lib/routes';
 
 import type { DeckDetail } from '@/lib/data/library';
 
@@ -38,7 +39,7 @@ function DeckDetailHeader({ deck }: Props) {
       {/* Breadcrumb */}
       <nav className="mb-3 flex items-center gap-2 text-xs font-medium text-slate-500">
         <Link
-          href="/library"
+          href={ROUTES.LIBRARY}
           className="transition-colors hover:text-emerald-600"
         >
           Thư viện
@@ -78,7 +79,7 @@ function DeckDetailHeader({ deck }: Props) {
               size="sm"
               className="border-emerald-200 text-emerald-700 hover:bg-emerald-50"
             >
-              <Link href={`/study/${id}`}>
+              <Link href={generatePath(ROUTES.STUDY_SESSION, { deckId: id })}>
                 Học ngay ({due_count} thẻ cần ôn)
               </Link>
             </Button>
@@ -90,7 +91,15 @@ function DeckDetailHeader({ deck }: Props) {
                 size="sm"
                 className="border-slate-200 text-slate-600 hover:bg-slate-50"
               >
-                <Link href={`/study/${id}?mode=review`}>Ôn lại bộ này</Link>
+                <Link
+                  href={generatePath(
+                    ROUTES.STUDY_SESSION,
+                    { deckId: id },
+                    { mode: 'review' },
+                  )}
+                >
+                  Ôn lại bộ này
+                </Link>
               </Button>
             )
           )}
@@ -99,7 +108,9 @@ function DeckDetailHeader({ deck }: Props) {
             size="sm"
             className="gap-2 bg-emerald-600 font-bold shadow-lg shadow-emerald-900/10 hover:bg-emerald-50! hover:text-emerald-700"
           >
-            <Link href={`/library/${id}/cards/new`}>+ Thêm thẻ mới</Link>
+            <Link href={generatePath(ROUTES.DECK_CARDS_NEW, { deckId: id })}>
+              + Thêm thẻ mới
+            </Link>
           </Button>
         </div>
       </div>

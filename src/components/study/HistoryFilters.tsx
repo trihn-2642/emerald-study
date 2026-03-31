@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { ROUTES } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 
 import type { Period } from '@/lib/data/history';
@@ -33,7 +34,7 @@ export function HistoryFilters({ decks, currentDeck, currentPeriod }: Props) {
     const params = new URLSearchParams(searchParams.toString());
     params.set(key, value);
     params.set('page', '1'); // reset pagination on filter change
-    router.push(`/study/history?${params.toString()}`);
+    router.push(`${ROUTES.STUDY_HISTORY}?${params.toString()}`);
   }
 
   return (
