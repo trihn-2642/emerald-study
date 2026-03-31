@@ -1,6 +1,6 @@
 # Task 07: Lịch sử phiên học – Study History
 
-## 🔲 Trạng thái: CHƯA BẮT ĐẦU
+## ✅ Trạng thái: HOÀN THÀNH
 
 ---
 
@@ -330,25 +330,27 @@ Thêm tab/link "Lịch sử" vào trang `/study`:
 
 ### Phase 1 – Database & Session Recording
 
-- [ ] Chạy migration SQL `study_sessions`
-- [ ] Thêm `sessionStartedAt` vào `useStudyStore`
-- [ ] Implement `saveStudySession` Server Action trong `src/lib/data/history.ts`
-- [ ] Cập nhật `SessionComplete` để gọi `saveStudySession` khi mount
-- [ ] Test: hoàn thành 1 phiên học → kiểm tra row trong Supabase
+- [x] Chạy migration SQL `study_sessions`
+- [x] Thêm `sessionStartedAt` vào `useStudyStore`
+- [x] Implement `saveStudySession` Server Action trong `src/lib/data/history.ts`
+- [x] Cập nhật `SessionComplete` để gọi `saveStudySession` khi mount
+- [x] Test: hoàn thành 1 phiên học → kiểm tra row trong Supabase
 
 ### Phase 2 – Data Fetching
 
-- [ ] Implement `getStudyHistory()` với filter period + deck + pagination
-- [ ] Implement `getUserDecks()` cho Select filter
-- [ ] Tính toán `prev_stats` để hiển thị trend
+- [x] Implement `getStudyHistory()` với filter period + deck + pagination
+- [x] Implement `getUserDecks()` cho Select filter
+- [x] Tính toán `prev_stats` để hiển thị trend
 
 ### Phase 3 – UI
 
-- [ ] `HistoryFilters` — Select + period toggle, sync với URL params
-- [ ] `HistoryStatsRow` — 3 stat cards với CountUp + trend badge
-- [ ] `SessionLabel` — badge Mới / Ôn tập / Chưa thuộc
-- [ ] `HistoryTable` — bảng + accuracy bar + pagination footer
-- [ ] `page.tsx` — kết hợp tất cả, Suspense boundaries, loading skeleton
-- [ ] Link "Xem lịch sử" từ trang `/study`
-- [ ] Empty state khi chưa có session
-- [ ] Responsive: mobile hiển thị dạng card list thay bảng (breakpoint < md)
+- [x] `HistoryFilters` — Select + period toggle, sync với URL params
+- [x] `HistoryStatsRow` — 3 stat cards với CountUp + trend badge
+- [x] `SessionLabel` — badge Mới / Ôn tập / Chưa thuộc
+- [x] `HistoryTable` — bảng + accuracy bar + pagination footer
+- [x] `page.tsx` — Suspense + HistorySection (streaming, không dùng loading.tsx)
+- [x] `HistorySection.tsx` — async Server Component gom filters + stats + table
+- [x] `Skeleton.tsx` — skeleton tách riêng tại `src/components/study/Skeleton.tsx`
+- [x] Link "Xem lịch sử" từ trang `/study`
+- [x] Empty state khi chưa có session
+- [x] Responsive: mobile hiển thị dạng card list thay bảng (breakpoint < md)

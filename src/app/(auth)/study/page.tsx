@@ -50,7 +50,7 @@ export default async function StudyListPage() {
           <h2 className="mb-4 text-xs font-bold tracking-widest text-emerald-600 uppercase">
             Cần ôn hôm nay
           </h2>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {dueDecks.map((deck) => (
               <StudyDeckCard key={deck.id} deck={deck} />
             ))}
@@ -64,7 +64,7 @@ export default async function StudyListPage() {
           <h2 className="mb-4 text-xs font-bold tracking-widest text-slate-400 uppercase">
             Đã hoàn thành — ôn lại nếu muốn
           </h2>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {doneDecks.map((deck) => (
               <StudyDeckCard key={deck.id} deck={deck} done />
             ))}
@@ -106,8 +106,10 @@ function StudyDeckCard({ deck, done = false }: CardProps) {
   return (
     <div
       className={cn(
-        'flex flex-col rounded-2xl bg-white p-5 shadow-sm transition-all',
-        !done && 'border-b-4 border-emerald-400',
+        'group flex flex-col rounded-2xl bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md',
+        !done
+          ? 'border-b-4 border-transparent hover:border-emerald-500'
+          : 'border-b-4 border-transparent hover:border-slate-200',
       )}
     >
       <div className="mb-3 flex items-start justify-between">

@@ -15,7 +15,7 @@ const navItems = [
   { href: '/dashboard', label: 'Trang chủ', icon: LayoutDashboard },
   { href: '/library', label: 'Thư viện', icon: BookOpen },
   { href: '/study', label: 'Học', icon: GraduationCap },
-  { href: '/stats', label: 'Số liệu', icon: BarChart3 },
+  { href: '/stats', label: 'Thống kê', icon: BarChart3 },
 ];
 
 export function BottomNav() {
