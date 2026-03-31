@@ -147,7 +147,7 @@ function LibraryDeckCard({ deck, isOptimistic }: Props) {
             ) : (
               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-600">
                 <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-                Sạch bóng!
+                Đã hoàn thành!
               </span>
             )}
 

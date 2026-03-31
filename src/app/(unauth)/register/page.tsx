@@ -25,9 +25,10 @@ export default function RegisterPage() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
+    mode: 'all',
   });
 
   const onSubmit = async (data: RegisterFormValues) => {
@@ -169,7 +170,7 @@ export default function RegisterPage() {
 
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || !isDirty}
               className="from-brand-deep h-auto w-full bg-linear-to-br to-emerald-500 py-4 font-semibold text-white shadow-sm hover:opacity-90"
             >
               {isSubmitting ? 'Đang tạo tài khoản…' : 'Đăng ký tài khoản'}

@@ -36,7 +36,7 @@ function EditDeckDialog({ deck, open, onOpenChange }: Props) {
     handleSubmit,
     control,
     reset,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<DeckFormData>({
     resolver: zodResolver(deckSchema),
     defaultValues: {
@@ -44,6 +44,7 @@ function EditDeckDialog({ deck, open, onOpenChange }: Props) {
       description: deck.description ?? '',
       language: deck.language,
     },
+    mode: 'all',
   });
 
   // Sync when deck changes
@@ -171,7 +172,7 @@ function EditDeckDialog({ deck, open, onOpenChange }: Props) {
               </Button>
               <Button
                 type="submit"
-                disabled={isPending}
+                disabled={isPending || !isDirty}
                 className="bg-emerald-600 hover:bg-emerald-700"
               >
                 {isPending ? 'Đang lưu...' : 'Lưu thay đổi'}

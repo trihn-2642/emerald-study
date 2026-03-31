@@ -8,9 +8,15 @@ type Props = {
   children: React.ReactNode;
   userName: string;
   userEmail?: string;
+  userAvatarUrl?: string | null;
 };
 
-export function AppShell({ children, userName, userEmail }: Props) {
+export function AppShell({
+  children,
+  userName,
+  userEmail,
+  userAvatarUrl,
+}: Props) {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
@@ -27,7 +33,11 @@ export function AppShell({ children, userName, userEmail }: Props) {
             </span>
           </div>
           <div className="hidden md:block" />
-          <UserMenu name={userName} email={userEmail} />
+          <UserMenu
+            name={userName}
+            email={userEmail}
+            avatarUrl={userAvatarUrl}
+          />
         </header>
         <main className="bg-surface-page flex-1 overflow-auto pb-20 md:pb-0">
           {children}

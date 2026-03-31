@@ -1,7 +1,10 @@
 'use client';
 
-import { LogOut, ChevronDown } from 'lucide-react';
+import { LogOut, ChevronDown, Settings } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 import {
   DropdownMenu,
@@ -13,14 +16,17 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ROUTES } from '@/lib/routes';
 import { createClient } from '@/lib/supabase/client';
+import { cn } from '@/lib/utils';
 
 type Props = {
   name: string;
   email?: string;
+  avatarUrl?: string | null;
 };
 
-export function UserMenu({ name, email }: Props) {
+export function UserMenu({ name, email, avatarUrl }: Props) {
   const router = useRouter();
+  const [imgError, setImgError] = useState(false);
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -39,10 +45,27 @@ export function UserMenu({ name, email }: Props) {
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <button className="flex cursor-pointer items-center gap-2.5 rounded-full p-1 transition-colors outline-none hover:bg-slate-100">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-emerald-200 bg-emerald-100">
-            <span className="text-xs font-bold text-emerald-700">
-              {initials}
-            </span>
+          <div
+            className={cn(
+              'flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-emerald-100',
+              !avatarUrl && imgError && 'border-2 border-emerald-200',
+            )}
+          >
+            {avatarUrl && !imgError ? (
+              <Image
+                src={avatarUrl}
+                alt={name}
+                width={32}
+                height={32}
+                className="h-full w-full object-cover"
+                unoptimized
+                onError={() => setImgError(true)}
+              />
+            ) : (
+              <span className="text-xs font-bold text-emerald-700">
+                {initials}
+              </span>
+            )}
           </div>
           <span className="text-on-surface hidden max-w-30 truncate text-sm font-semibold sm:block">
             {name}
@@ -60,6 +83,13 @@ export function UserMenu({ name, email }: Props) {
             </span>
           )}
         </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild className="cursor-pointer">
+          <Link href={ROUTES.SETTINGS}>
+            <Settings className="mr-2 h-4 w-4" />
+            Cài đặt tài khoản
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="cursor-pointer text-red-600 focus:bg-red-50 focus:text-red-600"

@@ -49,10 +49,11 @@ function CreateDeckDialog({
     handleSubmit,
     control,
     reset,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<DeckFormData>({
     resolver: zodResolver(deckSchema),
     defaultValues: { language: 'zh' },
+    mode: 'all',
   });
 
   function handleClose(nextOpen: boolean) {
@@ -185,7 +186,7 @@ function CreateDeckDialog({
               >
                 Hủy
               </Button>
-              <Button type="submit" disabled={isPending}>
+              <Button type="submit" disabled={isPending || !isDirty}>
                 {isPending ? 'Đang tạo...' : 'Tạo bộ thẻ'}
               </Button>
             </div>
