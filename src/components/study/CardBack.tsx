@@ -71,7 +71,7 @@ export function CardBack({ card }: Props) {
 
       {/* Examples */}
       {hasExamples ? (
-        <div className="flex-1 space-y-2 overflow-y-auto">
+        <div className="scrollbar-thin flex-1 space-y-2 overflow-y-auto">
           <p className="mb-2 text-xs font-bold tracking-widest text-slate-400 uppercase">
             Ví dụ
           </p>
