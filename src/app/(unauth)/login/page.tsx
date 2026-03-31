@@ -22,9 +22,10 @@ export default function LoginPage() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
+    mode: 'all',
   });
 
   const onSubmit = async (data: LoginFormValues) => {
@@ -105,7 +106,7 @@ export default function LoginPage() {
 
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || !isDirty}
               className="from-brand-deep h-auto w-full bg-linear-to-br to-emerald-500 py-4 font-semibold text-white shadow-sm hover:opacity-90"
             >
               {isSubmitting ? 'Đang đăng nhập…' : 'Đăng nhập'}

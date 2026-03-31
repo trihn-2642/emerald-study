@@ -20,6 +20,7 @@ export const ROUTES = {
   STUDY_SESSION: '/study/:deckId',
   STUDY_HISTORY: '/study/history',
   STATS: '/stats',
+  SETTINGS: '/settings',
 } as const;
 
 type RouteParams = Record<string, string | number>;

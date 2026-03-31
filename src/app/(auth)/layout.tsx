@@ -8,9 +8,14 @@ export default async function AppLayout({
 }) {
   const user = await getUser();
   const userName = user.user_metadata?.full_name ?? user.email?.split('@')[0];
+  const userAvatarUrl = user.user_metadata?.avatar_url ?? null;
 
   return (
-    <AppShell userName={userName} userEmail={user.email}>
+    <AppShell
+      userName={userName}
+      userEmail={user.email}
+      userAvatarUrl={userAvatarUrl}
+    >
       {children}
     </AppShell>
   );
