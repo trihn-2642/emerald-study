@@ -130,8 +130,11 @@ function CardPreview({
                 ) : (
                   <p className="text-sm text-white/40">Nghĩa tiếng Việt...</p>
                 )}
-                {meaningEn && (
+                {language === 'zh' && meaningEn && (
                   <p className="text-sm text-white/70 italic">{meaningEn}</p>
+                )}
+                {language === 'en' && pinyin && (
+                  <p className="text-sm text-white/70 italic">{pinyin}</p>
                 )}
               </div>
             </div>
@@ -219,6 +222,16 @@ function CardPreview({
                       )}
                       {ex.vn && (
                         <p className="mt-0.5 text-xs text-slate-500">{ex.vn}</p>
+                      )}
+                      {language === 'en' && ex.cn && (
+                        <p className="font-cn mt-0.5 text-xs text-slate-400">
+                          {ex.cn}
+                        </p>
+                      )}
+                      {language === 'zh' && ex.en && (
+                        <p className="mt-0.5 text-xs text-slate-400 italic">
+                          {ex.en}
+                        </p>
                       )}
                     </div>
                   );
