@@ -241,7 +241,7 @@ export function HistoryTable({ sessions, total, page, limit }: Props) {
                       deckId: s.deck_id,
                     })}
                   >
-                    H\u1ecdc l\u1ea1i
+                    Học lại
                   </Link>
                 </Button>
               </div>
