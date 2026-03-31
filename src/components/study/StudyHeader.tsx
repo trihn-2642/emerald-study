@@ -3,6 +3,8 @@
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import Link from 'next/link';
 
+import { generatePath, ROUTES } from '@/lib/routes';
+
 type Props = {
   deckId: string;
   deckName: string;
@@ -41,7 +43,7 @@ export function StudyHeader({
       {/* Header row */}
       <div className="flex items-center justify-between px-4 py-3 md:px-6">
         <Link
-          href={`/library/${deckId}/cards`}
+          href={generatePath(ROUTES.DECK_CARDS, { deckId })}
           className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800"
         >
           <X className="h-5 w-5" />

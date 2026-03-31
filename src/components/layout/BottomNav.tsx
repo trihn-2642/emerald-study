@@ -9,13 +9,14 @@ import {
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+import { ROUTES } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { href: '/dashboard', label: 'Trang chủ', icon: LayoutDashboard },
-  { href: '/library', label: 'Thư viện', icon: BookOpen },
-  { href: '/study', label: 'Học', icon: GraduationCap },
-  { href: '/stats', label: 'Thống kê', icon: BarChart3 },
+  { href: ROUTES.DASHBOARD, label: 'Trang chủ', icon: LayoutDashboard },
+  { href: ROUTES.LIBRARY, label: 'Thư viện', icon: BookOpen },
+  { href: ROUTES.STUDY, label: 'Học', icon: GraduationCap },
+  { href: ROUTES.STATS, label: 'Thống kê', icon: BarChart3 },
 ];
 
 export function BottomNav() {

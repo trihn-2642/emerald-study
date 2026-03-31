@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { LANGUAGE_LABELS } from '@/constants';
 import { deleteDeck } from '@/lib/data/library';
+import { generatePath, ROUTES } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 
 import type { Deck } from '@/types';
@@ -108,7 +109,9 @@ function LibraryDeckCard({ deck, isOptimistic }: Props) {
 
         {/* Clickable card area */}
         <Link
-          href={isOptimistic ? '#' : `/library/${id}/cards`}
+          href={
+            isOptimistic ? '#' : generatePath(ROUTES.DECK_CARDS, { deckId: id })
+          }
           onClick={isOptimistic ? (e) => e.preventDefault() : undefined}
           className="block p-5"
         >

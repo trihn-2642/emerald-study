@@ -8,6 +8,7 @@ import Confetti from 'react-confetti';
 import { Button } from '@/components/ui/button';
 import { RATING_LABELS, type TRating } from '@/constants';
 import { saveStudySession } from '@/lib/data/history';
+import { ROUTES } from '@/lib/routes';
 import { useStudyStore } from '@/store/useStudyStore';
 
 type Props = {
@@ -130,7 +131,7 @@ export function SessionComplete({
             <RotateCcw className="h-4 w-4" />
             Học lại bộ này
           </Button>
-          <Link href="/study">
+          <Link href={ROUTES.STUDY}>
             <Button className="from-brand-deep h-auto w-full cursor-pointer bg-linear-to-br to-emerald-500 py-3 font-semibold text-white hover:opacity-90">
               Về Phiên học
             </Button>

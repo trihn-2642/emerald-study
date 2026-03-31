@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 
 import { getAllCards, getDueCards } from '@/lib/data/study';
+import { generatePath, ROUTES } from '@/lib/routes';
 
 import { StudySession } from './session';
 
@@ -19,11 +20,11 @@ export default async function StudyPage({ params, searchParams }: Props) {
     : await getDueCards(deckId);
 
   if (!result) {
-    redirect('/library');
+    redirect(ROUTES.LIBRARY);
   }
 
   if (result.cards.length === 0) {
-    redirect(`/library/${deckId}/cards`);
+    redirect(generatePath(ROUTES.DECK_CARDS, { deckId }));
   }
 
   return (

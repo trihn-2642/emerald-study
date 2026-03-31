@@ -25,6 +25,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { deleteCard } from '@/lib/data/cards';
+import { generatePath, ROUTES } from '@/lib/routes';
 
 import type { Example, Flashcard, FsrsData } from '@/types';
 
@@ -337,7 +338,10 @@ function FlashcardTable({ flashcards, deckId, language }: Props) {
                     </div>
                     <div className="flex shrink-0 items-center gap-1">
                       <Link
-                        href={`/library/${deckId}/cards/${card.id}/edit`}
+                        href={generatePath(ROUTES.DECK_CARD_EDIT, {
+                          deckId,
+                          cardId: card.id,
+                        })}
                         className="rounded-lg p-2 text-emerald-600 transition-colors hover:bg-emerald-50"
                       >
                         <Pencil className="h-4 w-4" />
@@ -482,7 +486,10 @@ function FlashcardTable({ flashcards, deckId, language }: Props) {
                       <td className="px-8 py-5 text-right align-top">
                         <div className="flex items-center justify-end gap-1 transition-opacity">
                           <Link
-                            href={`/library/${deckId}/cards/${card.id}/edit`}
+                            href={generatePath(ROUTES.DECK_CARD_EDIT, {
+                              deckId,
+                              cardId: card.id,
+                            })}
                             className="rounded-lg p-2 text-emerald-600 transition-colors hover:bg-emerald-50"
                           >
                             <Pencil className="h-4 w-4" />

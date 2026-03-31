@@ -11,6 +11,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/ui/password-input';
+import { ROUTES } from '@/lib/routes';
 import { createClient } from '@/lib/supabase/client';
 import { loginSchema, type LoginFormValues } from '@/lib/validations/auth';
 
@@ -39,7 +40,7 @@ export default function LoginPage() {
       return;
     }
 
-    router.replace('/dashboard');
+    router.replace(ROUTES.DASHBOARD);
     router.refresh();
   };
 

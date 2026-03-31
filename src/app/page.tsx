@@ -1,17 +1,17 @@
 import { redirect } from 'next/navigation';
 
+import { ROUTES } from '@/lib/routes';
 import { createClient } from '@/lib/supabase/server';
 
 export default async function RootPage() {
   const supabase = await createClient();
-  console.log(supabase);
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (user) {
-    redirect('/dashboard');
+    redirect(ROUTES.DASHBOARD);
   } else {
-    redirect('/login');
+    redirect(ROUTES.LOGIN);
   }
 }

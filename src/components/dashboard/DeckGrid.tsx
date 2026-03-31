@@ -1,6 +1,8 @@
 import { ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 
+import { ROUTES } from '@/lib/routes';
+
 import { DeckCard } from './DeckCard';
 
 import type { Deck } from '@/types';
@@ -22,7 +24,7 @@ export function DeckGrid({ decks }: Props) {
           </p>
         </div>
         <Link
-          href="/library"
+          href={ROUTES.LIBRARY}
           className="flex items-center gap-0.5 text-sm font-bold text-emerald-600 hover:underline"
         >
           Xem tất cả
@@ -35,7 +37,7 @@ export function DeckGrid({ decks }: Props) {
           <p className="text-sm text-slate-400">
             Chưa có bộ thẻ nào.{' '}
             <Link
-              href="/library"
+              href={ROUTES.LIBRARY}
               className="font-semibold text-emerald-600 hover:underline"
             >
               Tạo thẻ mới

@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { DIFFICULTY_OPTIONS, WORD_TYPES, type Difficulty } from '@/constants';
 import { createCard, updateCard } from '@/lib/data/cards';
+import { generatePath, ROUTES } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 import { createCardSchema } from '@/lib/validations/card';
 
@@ -118,14 +119,14 @@ function CardForm({ deckId, deckName, deckLanguage, initialData }: Props) {
         <div>
           <nav className="mb-3 flex items-center gap-1 text-xs font-medium text-slate-500">
             <Link
-              href="/library"
+              href={ROUTES.LIBRARY}
               className="transition-colors hover:text-emerald-600"
             >
               Thư viện
             </Link>
             <ChevronRight className="h-3.5 w-3.5" />
             <Link
-              href={`/library/${deckId}/cards`}
+              href={generatePath(ROUTES.DECK_CARDS, { deckId })}
               className="transition-colors hover:text-emerald-600"
             >
               {deckName}

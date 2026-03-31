@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 import { LANGUAGE_LABELS } from '@/constants';
+import { generatePath, ROUTES } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 
 import { Badge } from '../ui/badge';
@@ -14,7 +15,9 @@ type Props = {
 export function DeckCard({ deck }: Props) {
   const lang = LANGUAGE_LABELS[deck.language] ?? LANGUAGE_LABELS.en;
   const hasDue = deck.due_count > 0;
-  const studyHref = hasDue ? `/study/${deck.id}` : `/library/${deck.id}/cards`;
+  const studyHref = hasDue
+    ? generatePath(ROUTES.STUDY_SESSION, { deckId: deck.id })
+    : generatePath(ROUTES.DECK_CARDS, { deckId: deck.id });
 
   return (
     <div className="group flex flex-col rounded-xl border-b-4 border-transparent bg-white p-6 shadow-sm transition-all hover:border-emerald-500 hover:bg-slate-50">
