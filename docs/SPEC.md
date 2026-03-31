@@ -258,7 +258,7 @@
 
 ### H. Thống kê (Statistics)
 
-- **Trang `/thong-ke`** — Server Component với `<Suspense>` cho mỗi section.
+- **Trang `/stats`** — Server Component với `<Suspense>` cho mỗi section.
 - **Header section** (stats tổng quan — 4 cards):
   1. Tổng thời gian học (all-time)
   2. Tổng thẻ đã ôn (all-time)
@@ -390,7 +390,7 @@ create policy "Users manage own sessions"
   /study/[deckId]?mode=review                   → Ôn lại toàn bộ thẻ (kể cả đã thuộc)
 /(auth)
   /study/history                                → Lịch sử phiên học (có AppShell)
-  /thong-ke                                     → Thống kê tổng quan
+  /stats                                       → Thống kê tổng quan
 ```
 
 ---

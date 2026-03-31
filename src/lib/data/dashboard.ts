@@ -194,7 +194,11 @@ export async function getUserStreak(userId: string): Promise<number> {
   let streak = 0;
   const today = new Date();
 
-  for (let i = 0; i < 365; i++) {
+  // Start from today if studied today, otherwise start from yesterday.
+  // Streak only resets the day after a missed day.
+  const startOffset = reviewDates.has(today.toDateString()) ? 0 : 1;
+
+  for (let i = startOffset; i < 365; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() - i);
     if (reviewDates.has(d.toDateString())) {
