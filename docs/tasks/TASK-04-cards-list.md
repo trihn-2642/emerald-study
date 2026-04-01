@@ -11,9 +11,9 @@ Xây dựng trang Chi tiết Deck hiển thị danh sách tất cả flashcard t
 | File                                             | Mô tả                                                                                                                                    |
 | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | `src/app/(auth)/library/[deckId]/cards/page.tsx` | Server Component: load deck + flashcards, render header + table                                                                          |
-| `src/components/library/DeckDetailHeader.tsx`    | Header: 4 stats tiles + nút "Học ngay" + DeleteDeckDialog + back link                                                                    |
-| `src/components/library/FlashcardTable.tsx`      | Client Component: bảng thẻ với search + state filter + pagination (10/trang) + `ExampleCell` expand/collapse + delete dialog + edit link |
-| `src/components/library/MasteryBadge.tsx`        | Badge trạng thái FSRS: Mới / Đang học / Ôn tập / Học lại                                                                                 |
+| `src/components/cards/DeckDetailHeader.tsx`      | Header: 4 stats tiles + nút "Học ngay" + DeleteDeckDialog + back link                                                                    |
+| `src/components/cards/FlashcardTable.tsx`        | Client Component: bảng thẻ với search + state filter + pagination (10/trang) + `ExampleCell` expand/collapse + delete dialog + edit link |
+| `src/components/cards/MasteryBadge.tsx`          | Badge trạng thái FSRS: Mới / Đang học / Ôn tập / Học lại                                                                                 |
 
 ---
 
@@ -82,7 +82,7 @@ Xây dựng trang Chi tiết Deck hiển thị danh sách tất cả flashcard t
 ### `MasteryBadge`
 
 ```typescript
-// Hiện tại trong src/components/library/MasteryBadge.tsx
+// Hiện tại trong src/components/cards/MasteryBadge.tsx
 const STATE_MAP = {
   0: { label: 'Mới', className: 'bg-blue-500/10 text-blue-600' },
   1: { label: 'Đang học', className: 'bg-orange-500/10 text-orange-600' },
@@ -117,7 +117,7 @@ const STATE_MAP = {
 - [x] Cột "Ôn tiếp" dùng `dayjs` với màu tương đối
 - [x] Cột "Lần cuối" dùng `dayjs` relative time
 - [x] `ExampleCell` expand/collapse — 1 ví dụ mặc định, toggle hiển thị tất cả
-- [x] `WordTypeBadge` hiển thị loại từ (Danh từ/Động từ/Tính từ/Trạng từ/Khác) với màu tương ứng, „—“ khi không có
+- [x] `WordTypeBadge` (`src/components/cards/WordTypeBadge.tsx`) hiển thị loại từ (Danh từ/Động từ/Tính từ/Trạng từ/Khác) với màu tương ứng, „—“ khi không có
 - [x] Tìm kiếm realtime theo `front`, `pinyin`, `meaning_vn`
 - [x] State filter: dropdown các trạng thái FSRS
 - [x] Pagination: 10 thẻ / trang

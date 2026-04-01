@@ -57,11 +57,10 @@ create index idx_study_sessions_deck on study_sessions (deck_id);
 | File                                       | Mô tả                                            |
 | ------------------------------------------ | ------------------------------------------------ |
 | `src/app/(auth)/study/history/page.tsx`    | Server Component: trang lịch sử phiên học        |
-| `src/app/(auth)/study/history/loading.tsx` | Skeleton loading                                 |
 | `src/components/study/HistoryFilters.tsx`  | Client Component: deck select + period toggle    |
 | `src/components/study/HistoryStatsRow.tsx` | Server Component: 3 summary stat cards           |
 | `src/components/study/HistoryTable.tsx`    | Client Component: bảng chi tiết + pagination     |
-| `src/components/study/SessionLabel.tsx`    | Badge component: Mới / Ôn tập / Chưa thuộc       |
+| `src/components/study/HistorySection.tsx`  | Async Server Component gom filters + stats + table |
 | `src/components/study/Skeleton.tsx`        | Skeleton cho history page                        |
 | `src/lib/data/history.ts`                  | Data fetching + Server Action `saveStudySession` |
 
@@ -346,7 +345,7 @@ Thêm tab/link "Lịch sử" vào trang `/study`:
 
 - [x] `HistoryFilters` — Select + period toggle, sync với URL params
 - [x] `HistoryStatsRow` — 3 stat cards với CountUp + trend badge
-- [x] `SessionLabel` — badge Mới / Ôn tập / Chưa thuộc
+- [ ] `SessionLabel` (`src/components/study/SessionLabel.tsx`) — badge Mới / Ôn tập / Chưa thuộc
 - [x] `HistoryTable` — bảng + accuracy bar + pagination footer
 - [x] `page.tsx` — Suspense + HistorySection (streaming, không dùng loading.tsx)
 - [x] `HistorySection.tsx` — async Server Component gom filters + stats + table

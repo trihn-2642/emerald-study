@@ -11,7 +11,6 @@ Xây dựng trang Thư viện để xem tất cả bộ thẻ, tìm kiếm/lọc
 | File                                             | Mô tả                                                                                                                                  |
 | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
 | `src/app/(auth)/library/page.tsx`                | Server Component: trang thư viện, 2 Suspense section stream độc lập                                                                    |
-| `src/app/(auth)/library/loading.tsx`             | Skeleton loading state cho Library page                                                                                                |
 | `src/app/(auth)/library/[deckId]/cards/page.tsx` | Server Component: Chi tiết 1 deck, danh sách thẻ (bảng)                                                                                |
 | `src/lib/data/library.ts`                        | Data fetching + Server Actions: `getAllDecks` (cached), `getDeckById`, `getFlashcardsByDeck`, `createDeck`, `updateDeck`, `deleteDeck` |
 | `src/components/library/LibraryDecksSection.tsx` | Server Component: fetch decks, render grid hoặc empty state                                                                            |
@@ -22,9 +21,10 @@ Xây dựng trang Thư viện để xem tất cả bộ thẻ, tìm kiếm/lọc
 | `src/components/library/DeleteDeckDialog.tsx`    | Dialog xác nhận xóa deck (cascade flashcards)                                                                                          |
 | `src/components/library/DeckListGrid.tsx`        | Client Component: grid decks + search + filter + sort (shadcn `Select`) + `useOptimistic`                                              |
 | `src/components/library/LibraryDeckCard.tsx`     | Card Bento: 3-dot `DropdownMenu` (Edit/Delete), confirmation dialog, mastery ring, due badge, loading overlay                          |
-| `src/components/library/DeckDetailHeader.tsx`    | Header deck detail: 4 stats + nút Học ngay + DeleteDeckDialog                                                                          |
-| `src/components/library/FlashcardTable.tsx`      | Client Component: bảng thẻ + search + state filter + pagination (10/trang) + `ExampleCell` expand/collapse + delete dialog + edit link |
-| `src/components/library/MasteryBadge.tsx`        | Badge FSRS state: Mới / Đang học / Ôn tập / Học lại                                                                                    |
+| `src/components/cards/DeckDetailHeader.tsx`      | Header deck detail: 4 stats + nút Học ngay + DeleteDeckDialog                                                                          |
+| `src/components/cards/FlashcardTable.tsx`        | Client Component: bảng thẻ + search + state filter + pagination (10/trang) + `ExampleCell` expand/collapse + delete dialog + edit link |
+| `src/components/cards/MasteryBadge.tsx`          | Badge FSRS state: Mới / Đang học / Ôn tập / Học lại                                                                                    |
+| `src/components/library/MasteryRing.tsx`         | SVG mastery ring hiển thị % thuộc lòng trên LibraryDeckCard                                                                            |
 
 ---
 

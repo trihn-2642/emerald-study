@@ -29,12 +29,16 @@ Thiết lập toàn bộ nền tảng kỹ thuật cho dự án: kiến trúc th
 | `src/constants/index.ts`               | Hằng số dùng chung: `RANKS`, `XP_PER_STREAK_DAY`, `LANGUAGE_LABELS`                |
 | `src/utils/index.ts`                   | Utility functions: `getRank(xp)`, `getProgressColor(percent)`                      |
 | `src/app/(auth)/layout.tsx`            | Protected route group layout sử dụng AppShell, auth guard                          |
-| `src/app/(auth)/page.tsx`              | Redirect về `/dashboard`                                                           |
+| `src/app/page.tsx`                     | Redirect về `/dashboard`                                                           |
 | `src/app/loading.tsx`                  | Global loading spinner khi điều hướng                                              |
 | `src/app/(unauth)/layout.tsx`          | Layout trang auth: centered, không sidebar                                         |
 | `src/app/(unauth)/login/page.tsx`      | Trang đăng nhập: form email + password, link sang `/register`                      |
 | `src/app/(unauth)/register/page.tsx`   | Trang đăng ký: form tạo tài khoản, tự login sau khi tạo xong                       |
 | `src/proxy.ts`                         | File thực thi chính của Next.js 16, gọi hàm từ thư mục lib ở trên.                 |
+| `src/lib/routes.ts`                    | Hằng số ROUTES: các đường dẫn điều hướng trong app                                 |
+| `src/lib/utils.ts`                     | Utility function `cn()` (clsx + tailwind-merge)                                    |
+| `src/lib/auth-schemas.ts`              | Re-export barrel từ `src/lib/validations/auth.ts`                                  |
+| `src/lib/validations/auth.ts`          | Zod schemas: `loginSchema`, `registerSchema` cho auth forms (canonical location)   |
 | `.env.local.example`                   | Template biến môi trường Supabase                                                  |
 
 ### Sửa
@@ -201,7 +205,7 @@ Chỉ dùng thêm Tailwind Emerald scale theo nhu cầu: `emerald-500`, `emerald
 - [x] Submit action: `supabase.auth.signUp({ email, password, options: { data: { full_name: fullName } } })` → `router.push('/dashboard')`
 - [x] Footer link: "Đã có tài khoản? **Đăng nhập**" → `/login`
 
-#### Validation Schemas (`src/lib/auth-schemas.ts`)
+#### Validation Schemas (`src/lib/validations/auth.ts`)
 
 - [x] `loginSchema`: email (regex từ `REGEXS.EMAIL`), password `min(6)`
 - [x] `registerSchema`: fullName, email, password `min(6)`, confirmPassword (`.refine` match), agreeToTerms (`.refine` true)
@@ -217,7 +221,7 @@ Chỉ dùng thêm Tailwind Emerald scale theo nhu cầu: `emerald-500`, `emerald
 
 - [x] CSS variables emerald được khai báo trong `globals.css`
 - [x] `Spinner` (`src/components/ui/spinner.tsx`) — spin xanh `emerald-500`, dùng chung
-- [x] `loading.tsx` ở `(auth)/` và `(unauth)/` hiển thị spinner khi điều hướng
+- [x] `loading.tsx` (`src/app/loading.tsx`) hiển thị spinner khi điều hướng
 - [x] App render không lỗi tại `http://localhost:3000`
 
 ---
