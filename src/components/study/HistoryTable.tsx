@@ -188,9 +188,11 @@ export function HistoryTable({ sessions, total, page, limit }: Props) {
                       className="bg-emerald-600 text-white hover:bg-emerald-700!"
                     >
                       <Link
-                        href={generatePath(ROUTES.STUDY_SESSION, {
-                          deckId: s.deck_id,
-                        })}
+                        href={generatePath(
+                          ROUTES.STUDY_SESSION,
+                          { deckId: s.deck_id },
+                          { mode: 'review' },
+                        )}
                       >
                         Học lại
                       </Link>
@@ -237,9 +239,11 @@ export function HistoryTable({ sessions, total, page, limit }: Props) {
                   className="shrink-0 bg-emerald-600 text-white hover:bg-emerald-700"
                 >
                   <Link
-                    href={generatePath(ROUTES.STUDY_SESSION, {
-                      deckId: s.deck_id,
-                    })}
+                    href={generatePath(
+                      ROUTES.STUDY_SESSION,
+                      { deckId: s.deck_id },
+                      { mode: 'review' },
+                    )}
                   >
                     Học lại
                   </Link>
