@@ -29,7 +29,6 @@ Xây dựng form thêm thẻ mới và chỉnh sửa thẻ hiện có, bao gồm
 | `src/components/cards/LanguageToggle.tsx`                      | Toggle chọn ngôn ngữ: Tiếng Trung / Tiếng Anh                                           |
 | `src/components/cards/DeleteCardButton.tsx`                    | Nút xóa thẻ có confirm (dùng trong edit page)                                           |
 | `src/lib/data/cards.ts`                                        | Data fetching + Server Actions: `getCardById`, `createCard`, `updateCard`, `deleteCard` |
-| `src/lib/data/cards.ts`                                        | Fetch single card by ID cho edit page                                                   |
 | `src/lib/validations/card.ts`                                  | Zod schema `cardSchema` cho form validation                                             |
 
 ---
@@ -272,7 +271,3 @@ const DIFFICULTY_MAP = { easy: 3.0, medium: 5.3, hard: 7.5 };
 - [x] Responsive trên mobile: form full-width, preview ẩn
 
 ---
-
-## ⚠️ Pending / To-do
-
-- [ ] `DeckSelector` chưa có option "＋ Tạo bộ thẻ mới" inline

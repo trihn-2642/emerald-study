@@ -159,6 +159,5 @@ for (let i = startOffset; i < 365; i++) { ... }
 ### Phase 3 – Page & Navigation
 
 - [x] `page.tsx` — fetch parallel, layout responsive lg/xl
-- [x] `loading.tsx` — skeleton toàn trang
 - [x] Sidebar + BottomNav highlight đúng tab "Thống kê" (`/stats`)
 - [x] Fix `getUserStreak` — không reset streak nếu hôm nay chưa học
