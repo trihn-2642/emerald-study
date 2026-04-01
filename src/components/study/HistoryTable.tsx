@@ -113,6 +113,8 @@ export function HistoryTable({ sessions, total, page, limit }: Props) {
                   ? Math.round((s.correct_count / s.cards_reviewed) * 100)
                   : 0;
               const time = formatStartedAt(s.started_at);
+              const buttonLabel = accuracy === 100 ? 'Học lại' : 'Học tiếp';
+              const studyMode = accuracy === 100 ? 'review' : 'due';
               return (
                 <TableRow key={s.id} className="border-slate-100">
                   {/* Deck */}
@@ -150,7 +152,7 @@ export function HistoryTable({ sessions, total, page, limit }: Props) {
                   {/* Cards reviewed */}
                   <TableCell className="py-4">
                     <span className="text-sm font-semibold text-slate-700">
-                      {s.cards_reviewed}/{s.cards_total}
+                      {s.correct_count}/{s.cards_total}
                     </span>
                     <SessionLabelBadge accuracy={accuracy} mode={s.mode} />
                   </TableCell>
@@ -185,16 +187,16 @@ export function HistoryTable({ sessions, total, page, limit }: Props) {
                     <Button
                       asChild
                       size="sm"
-                      className="bg-emerald-600 text-white hover:bg-emerald-700!"
+                      className="w-18.5 bg-emerald-600 text-white hover:bg-emerald-700!"
                     >
                       <Link
                         href={generatePath(
                           ROUTES.STUDY_SESSION,
                           { deckId: s.deck_id },
-                          { mode: 'review' },
+                          { mode: studyMode },
                         )}
                       >
-                        Học lại
+                        {buttonLabel}
                       </Link>
                     </Button>
                   </TableCell>
@@ -214,6 +216,8 @@ export function HistoryTable({ sessions, total, page, limit }: Props) {
               ? Math.round((s.correct_count / s.cards_reviewed) * 100)
               : 0;
           const time = formatStartedAt(s.started_at);
+          const buttonLabel = accuracy === 100 ? 'Học lại' : 'Học tiếp';
+          const studyMode = accuracy === 100 ? 'review' : 'due';
           return (
             <div key={s.id} className="rounded-2xl bg-white p-4 shadow-sm">
               <div className="mb-3 flex items-start justify-between gap-2">
@@ -236,16 +240,16 @@ export function HistoryTable({ sessions, total, page, limit }: Props) {
                 <Button
                   asChild
                   size="sm"
-                  className="shrink-0 bg-emerald-600 text-white hover:bg-emerald-700"
+                  className="w-18.5 shrink-0 bg-emerald-600 text-white hover:bg-emerald-700"
                 >
                   <Link
                     href={generatePath(
                       ROUTES.STUDY_SESSION,
                       { deckId: s.deck_id },
-                      { mode: 'review' },
+                      { mode: studyMode },
                     )}
                   >
-                    Học lại
+                    {buttonLabel}
                   </Link>
                 </Button>
               </div>
@@ -253,7 +257,7 @@ export function HistoryTable({ sessions, total, page, limit }: Props) {
                 <span className="text-slate-500">
                   {formatDurationString(s.duration_sec)} •{' '}
                   <span className="font-semibold text-slate-700">
-                    {s.cards_reviewed}/{s.cards_total}
+                    {s.correct_count}/{s.cards_total}
                   </span>
                   <SessionLabelBadge accuracy={accuracy} mode={s.mode} />
                 </span>
